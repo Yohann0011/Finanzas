@@ -880,7 +880,7 @@ function paintSync(){ const b=$("btnSync"); if(!b)return;
 }
 async function syncPull(silent){
   try{
-    const r=await fetch("api/data",{headers:{accept:"application/json"}});
+    const r=await fetch("api/data",{headers:{accept:"application/json"},cache:"no-store"});
     if(!r.ok) throw 0;
     const j=await r.json();
     syncMode="cloud";
@@ -895,10 +895,10 @@ async function syncPull(silent){
   paintSync();
 }
 function syncPushNow(){
-  return fetch("api/data",{method:"PUT",headers:{"content-type":"application/json"},
+  return fetch("api/data",{method:"PUT",cache:"no-store",headers:{"content-type":"application/json"},
     body:JSON.stringify({updatedAt:Date.now(),state:S})})
     .then(r=>{ if(!r.ok)throw 0; syncMode="cloud"; store.set("miplata.updated",String(Date.now())); })
-    .catch(()=>{ syncMode="local"; })
+    .catch(()=>{ if(syncMode==="cloud")flash("⚠️ La nube no respondió: por ahora guardado solo en este dispositivo."); syncMode="local"; })
     .then(paintSync);
 }
 function syncPush(){ clearTimeout(pushT); pushT=setTimeout(syncPushNow,800); }
@@ -919,4 +919,3 @@ renderAll(true);
 </script>
 </body>
 </html>
-

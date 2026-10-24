@@ -11,11 +11,12 @@ gratis que Vercel conecta con un clic).
    - Opción A (Git): sube esta carpeta `vercel/` a un repo de GitHub y en
      https://vercel.com → *Add New… → Project* → importa el repo. Framework: *Other*.
    - Opción B (CLI): `npm i -g vercel` → dentro de esta carpeta: `vercel` y luego `vercel --prod`.
-2. **Conecta el almacenamiento KV**
-   - En el dashboard de Vercel: *Storage → Create Database → KV* → créala y
-     dale *Connect* a tu proyecto. Eso inyecta solo las variables
-     `KV_REST_API_URL` / `KV_REST_API_TOKEN` que usa `/api/data`.
-   - Haz *Redeploy* del proyecto para que tome las variables.
+2. **Conecta el almacenamiento (Redis, KV o Blob: el que aparezca)**
+   - En el dashboard: *Storage → Create* → elige **Redis** (antes se llamaba KV;
+     en algunos paneles aparece *Blob*). Cualquiera sirve: `/api/data`
+     detecta solo cuál conectaste por sus variables de entorno.
+   - *Connect* al proyecto y luego crea un deploy nuevo (commit en GitHub o
+     *Deployments → Redeploy* si tu deploy no era "prebuilt").
 3. **Listo**: abre la URL (`https://tu-proyecto.vercel.app`) en el PC y en el celular.
    - El botón **☁️** del encabezado significa "sincronizado con la nube";
      **⚠️** significa "solo este dispositivo" (revisa el paso 2).
