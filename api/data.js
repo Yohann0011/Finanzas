@@ -1,4 +1,4 @@
-// API de sincronizacion Mi Plata. Funciona con Blob PRIVADO o publico, y con Redis/KV.
+// API de sincronizacion Mi Plata (version final): Blob publico o privado + Redis/KV.
 // GET  /api/data -> { updatedAt, state } | null
 // PUT  /api/data <- { updatedAt, state }
 const CLAVE = "miplata-v1";
@@ -25,38 +25,37 @@ async function setUpstash([url, token], value) {
   if (!r.ok) throw new Error("upstash set " + r.status);
 }
 
-// ---- Blob (privado o publico): cada guardado crea un archivo nuevo con marca de tiempo
-async function latestBlob(list) {
-  const l = await list({ prefix: CLAVE + "-" });
-  return (l.blobs || []).sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt))[0] || null;
+// ---- Blob: un archivo nuevo por guardado (marca de tiempo), se leen los 5 ultimos
+async function latestBlobList(sdk) {
+  const l = await sdk.list({ prefix: CLAVE + "-" });
+  return (l.blobs || []).sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+}
+async function leerJson(r) {
+  if (!r || r.statusCode !== 200 || !r.stream) return null;
+  return JSON.parse(await new Response(r.stream).text());
 }
 async function getBlob() {
   const sdk = await import("@vercel/blob");
-  const latest = await latestBlob(sdk.list);
+  const latest = (await latestBlobList(sdk))[0] || null;
   if (!latest) return null;
-  const r = await sdk.get(latest.pathname, {});
-  if (!r || r.statusCode !== 200 || !r.stream) return null;
-  const text = await new Response(r.stream).text();
-  return JSON.parse(text);
+  try { const r = await fetch(latest.url, { cache: "no-store" }); if (r.ok) return await r.json(); } catch (e) {}
+  try { const r = await leerJson(await sdk.get(latest.pathname, { access: "public" })); if (r) return r; } catch (e) {}
+  return await leerJson(await sdk.get(latest.pathname, { access: "private" }));
 }
 async function setBlob(value) {
   const sdk = await import("@vercel/blob");
   const nombre = CLAVE + "-" + Date.now() + ".json";
+  const cuerpo = JSON.stringify(value);
   try {
-    await sdk.put(nombre, JSON.stringify(value), { addRandomSuffix: false, access: "public" });
+    await sdk.put(nombre, cuerpo, { addRandomSuffix: false, access: "public" });
   } catch (e) {
-    // stores publicos exigen access public; privados lo rechazan: se adapta solo
-    if (/access/i.test(String(e && e.message))) await sdk.put(nombre, JSON.stringify(value), { addRandomSuffix: false, access: "private" });
+    if (/access/i.test(String(e && e.message))) await sdk.put(nombre, cuerpo, { addRandomSuffix: false, access: "private" });
     else throw e;
   }
   try {
-    const old = ((await latestBlobList(sdk)).slice(5));
+    const old = (await latestBlobList(sdk)).slice(5);
     if (old.length) await sdk.del(old.map(b => b.pathname));
   } catch (e) { /* limpieza opcional */ }
-}
-async function latestBlobList(sdk) {
-  const l = await sdk.list({ prefix: CLAVE + "-" });
-  return (l.blobs || []).sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
 }
 
 const provider = () => (process.env.BLOB_READ_WRITE_TOKEN ? "blob" : (upstashVars() ? "redis" : null));
