@@ -186,10 +186,10 @@ tr.carryrow td{background:var(--carrybg)}
         <div class="body">
           <div class="mini-lbl" style="margin:2px 0 4px"><b>Cuota fija mensual</b> — muévete con ◀ ▶ y escribe en <b>“pago de este mes”</b> lo que te predijo el banco para CADA mes; queda guardado mes a mes:</div>
           <div class="scroll"><table id="tblCuoF">
-            <thead><tr><th>Entidad / crédito</th><th style="width:74px">Cuota base</th><th style="width:86px">Pago mínimo (banco)</th><th style="width:94px">Pago calculado</th><th style="width:96px">💵 Vas a cancelar (el que manda)</th><th style="width:96px">Saldo según banco</th><th style="width:96px">Saldo recalculado</th><th style="width:30px"></th></tr></thead>
+            <thead><tr><th>Entidad / crédito</th><th style="width:92px">Pago mínimo</th><th style="width:96px">Pago calculado</th><th style="width:100px">💵 Vas a cancelar (el que manda)</th><th style="width:100px">Saldo según banco</th><th style="width:100px">Saldo recalculado</th><th style="width:30px"></th></tr></thead>
             <tbody></tbody><tfoot><tr><td colspan="2">Total cuotas que pagas este mes</td><td class="num" id="totCuoF"></td><td class="num" id="totSaldo"></td><td></td></tr></tfoot>
           </table></div>
-          <div class="rowAdd"><input id="cuof_e" placeholder="Entidad (ej. Nequi)"><input type="number" id="cuof_c" placeholder="Cuota/mes"><input type="number" id="cuof_s" placeholder="Saldo"><button class="mini primary" onclick="addCuoF()">+ Agregar</button></div>
+          <div class="rowAdd"><input id="cuof_e" placeholder="Entidad (ej. Nequi)"><input type="number" id="cuof_c" placeholder="Pago mínimo"><input type="number" id="cuof_s" placeholder="Saldo"><button class="mini primary" onclick="addCuoF()">+ Agregar</button></div>
           <div class="mini-lbl" style="margin:10px 0 4px"><b>Cuotas específicas</b> (compra a N cuotas, ej. tarjeta a 36 meses):</div>
           <div class="scroll"><table id="tblCuoE">
             <thead><tr><th>Compra</th><th style="width:90px">N. cuotas</th><th style="width:100px">Cuota</th><th style="width:70px">Faltan</th><th style="width:34px"></th></tr></thead>
@@ -388,7 +388,11 @@ function save(){ recomputefins(); store.set(KEY, JSON.stringify(S)); syncPush();
 
 function diffMeses(a,b){const[ya,ma]=a.split("-").map(Number),[yb,mb]=b.split("-").map(Number);return (yb-ya)*12+(mb-ma);}
 function esCreditoTarjeta(r){ return /Tarjeta/i.test(r.e||""); }
-function pagoMin(m,r){ const pg=B(m).pagos[r.id]; const ceroEsVacio = pg===0 && esCreditoTarjeta(r); return (pg!=null && pg!=="" && !ceroEsVacio)? +pg : r.c; }
+function pagoMin(m,r){
+  const v=B(m).pagos[r.id]; if(v!=null&&v!=="") return +v;
+  let mm=m; while(mm>S.abierto){ mm=addM(mm,-1); const w=B(mm).pagos[r.id]; if(w!=null&&w!=="") return +w; }  /* hereda el ultimo minimo colocado */
+  return r.c;
+}
 function pagoCalc(m,r){ return pagoMin(m,r) + (esCreditoTarjeta(r)? cardCharges(addM(m,-1)) : 0); }  /* minimo + cargos con tarjeta del mes anterior */
 function pagoAplic(m,r){ const b=B(m); const px=b.pagox&&b.pagox[r.id]; return (px!=null&&px!=="")? +px : pagoCalc(m,r); }  /* lo que TÚ decidiste cancelar ese mes */
 function pagoPlaneado(m,r){ return pagoAplic(m,r); }
@@ -555,7 +559,7 @@ function renderFij(){
     const items=S.fijos.filter(x=>(x.cat||"Otros")===cat&&aplicaFijo(x,S.mes));
     if(!items.length)return;
     const cc=catColor(cat);
-    html+=`<tr class="cathead" data-cat="${esc(cat)}"><td colspan="8"><span class="catdot" style="background:${cc}"></span>${esc(cat)} · ${items.length} ítem(s) · ${F(sum(items,x=>x.v))}</td></tr>`;
+    html+=`<tr class="cathead" data-cat="${esc(cat)}"><td colspan="7"><span class="catdot" style="background:${cc}"></span>${esc(cat)} · ${items.length} ítem(s) · ${F(sum(items,x=>x.v))}</td></tr>`;
     items.forEach(r=>{ html+=`<tr class="del fijrow" draggable="true" data-id="${r.id}" style="--cc:${cc}">
       <td><span class="grip" title="Arrastra para reordenar">⠿</span><input class="inline" list="dlFij" value="${esc(r.c)}" data-k="c" data-id="${r.id}">${r.hasta?` <span class="pill" title="Último mes en que aplica">→ ${mesCorto(r.hasta)}</span>`:(r.desde&&r.desde>S.abierto?` <span class="pill" title="Empieza a aplicar este mes">desde ${mesCorto(r.desde)}</span>`:"")}</td>
       <td><select class="inline" data-k="cat" data-id="${r.id}">${opts(cats,r.cat||"Otros")}</select></td>
@@ -606,8 +610,7 @@ function renderCuo(){
   tb.innerHTML=vivas.map(r=>{const pe=pagoEf(S.mes,r),cap=pe<pagoPlaneado(S.mes,r);
     const pgRaw=B(S.mes).pagos[r.id]; const px=B(S.mes).pagox||{}; const ov=px[r.id]!=null&&px[r.id]!=="";
     return `<tr class="del"><td><input class="inline" value="${esc(r.e)}" data-k="e" data-id="${r.id}"></td>
-    <td><input type="number" class="inline" value="${r.c}" data-k="c" data-id="${r.id}" title="Cuota base de referencia"></td>
-    <td><input type="number" class="inline" value="${pgRaw!=null&&pgRaw!==""?pgRaw:""}" placeholder="${r.c}" data-k="p" data-id="${r.id}" title="Pago mínimo que te anuncia el banco al inicio del mes. Si lo dejas vacío, usa la cuota base (${F(r.c)})"></td>
+    <td><input type="number" class="inline" value="${pagoMin(S.mes,r)}" data-k="p" data-id="${r.id}" title="Pago mínimo del mes: lo que coloques aquí queda como referencia también para los meses siguientes hasta que lo cambies"></td>
     <td class="num" title="Precálculo si te aguantas al mínimo: pago mínimo + cargos con tarjeta del mes anterior" style="color:var(--soft)">${F(pagoCalc(S.mes,r))}</td>
     <td><input type="number" class="inline" value="${Math.round(pagoAplic(S.mes,r))}" data-k="px" data-id="${r.id}" title="${ov?"Valor manual: este es el que se descuenta de tus ingresos y baja la deuda":"Automático (= pago calculado). Escríbelo encima si vas a cancelar otro valor: este es el que manda"}" style="border-color:${ov?"var(--gold)":"var(--coral)"};font-weight:800${ov?";background:var(--planbg)":""}"></td>
     <td><input type="number" class="inline" value="${(()=>{const a=anchor(S.mes,r);return Math.round(a!=null?a:saldoCalc(S.mes,r));})()}" data-k="sal" data-id="${r.id}" title="Escribe aquí lo que te dice el banco que debes en ${mesLabel(S.mes)}: la tasa de interés se deduce sola comparando con el mes anterior"></td>
@@ -636,7 +639,7 @@ function renderCuo(){
   tb.querySelectorAll('[data-k="p"]').forEach(el=>{
     el.addEventListener("change",()=>{
       const r=S.cuotasF.find(x=>x.id===el.dataset.id);if(!r)return;
-      if(el.value==="") delete B(S.mes).pagos[r.id]; else B(S.mes).pagos[r.id]=+el.value||0;
+      if(el.value==="") delete B(S.mes).pagos[r.id]; else B(S.mes).pagos[r.id]=+el.value||0;   /* el minimo colocado manda hacia adelante */
       markDirty("cuo");renderAll(true);
     });
   });
@@ -656,8 +659,8 @@ function renderCuo(){
 function paintNoteCuo(){
   const t=totals();
   $("noteCuo").innerHTML = S.mes>S.abierto
-    ? "🔭 Mes futuro: la cadena es <b>cuota base → pago mínimo (banco) → pago calculado (mín + cargos tarjeta del mes anterior) → 💵 vas a cancelar</b> (el que manda, en dorado si lo escribes a mano). El saldo es proyección hasta que escribas el del banco."
-    : "La cadena: <b>cuota base</b> (tu referencia, editable) → <b>pago mínimo</b> (el que anuncia el banco; vacío = usa la base) → <b>pago calculado</b> (mínimo + cargos con tarjeta del mes anterior, "+F(t.cardPrev)+": lo que pagarías si te aguantas) → <b>💵 vas a cancelar</b> (el que manda: se descuenta de tus ingresos y baja la deuda; en dorado si lo escribes a mano) → <b>saldos</b>: el del banco (escríbelo) vs el recalculado por la app con intereses implícitos.";
+    ? "🔭 Mes futuro: la cadena es <b>pago mínimo (heredado del último que colocaste) → pago calculado (mín + cargos tarjeta del mes anterior) → 💵 vas a cancelar</b> (el que manda, en dorado si lo escribes a mano). El saldo es proyección hasta que escribas el del banco."
+    : "La cadena: <b>pago mínimo</b> (lo colocas tú; queda como referencia para los meses siguientes hasta que lo cambies) → <b>pago calculado</b> (mínimo + cargos con tarjeta del mes anterior, "+F(t.cardPrev)+": lo que pagarías si te aguantas) → <b>💵 vas a cancelar</b> (el que manda: se descuenta de tus ingresos y baja la deuda; en dorado si lo escribes a mano) → <b>saldos</b>: el del banco (escríbelo) vs el recalculado por la app con intereses implícitos.";
 }
 function renderAho(){
   const arr=B(S.mes).ahorro, tb=$("tblAho").tBodies[0];
