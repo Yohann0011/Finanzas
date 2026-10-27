@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="es">
 <head>
@@ -150,22 +151,20 @@ tr.carryrow td{background:var(--carrybg)}
     <div>
       <div class="card"><h3 class="h-ing">① Ingresos <span class="sub" id="subIng"></span><button class="mini save" id="savIng" onclick="saveSec('ing')">💾 Guardar</button></h3>
         <div class="body">
-          <div class="rowAdd" style="margin:0 0 8px">
-            <span class="mini-lbl" style="flex:1">Ingreso fijo mensual (salario):</span>
-            <input type="number" id="ingFijo" style="flex:1">
-          </div>
+          <div class="rowAdd" style="margin:0 0 8px"><input id="ingf_c" placeholder="Ingreso fijo (salario, arriendo, pensión…)"><input type="number" id="ingf_v" placeholder="Valor mensual"><button class="mini primary" onclick="addIngF()">+ Ingreso fijo</button></div>
           <div class="scroll"><table id="tblIng">
             <thead><tr><th style="width:92px">Fecha (auto)</th><th>Concepto</th><th style="width:110px">Valor</th><th style="width:34px"></th></tr></thead>
             <tbody></tbody><tfoot><tr><td colspan="2">Total ingresos del mes</td><td class="num" id="totIng"></td><td></td></tr></tfoot>
           </table></div>
-          <div class="rowAdd"><input id="ing_c" placeholder="Concepto (ej. freelance)"><input type="number" id="ing_v" placeholder="Valor"><button class="mini primary" onclick="addIng()">+ Agregar</button></div>
+          <div class="rowAdd"><input id="ing_c" placeholder="Concepto del extra"><input type="number" id="ing_v" placeholder="Valor"><button class="mini" id="ingRecToggle" onclick="toggleIngForm()" title="Activa para que este extra se repita solo cada mes">🔁 Recurrente</button><button class="mini primary" onclick="addIng()">+ Agregar</button></div>
+          <div class="note">🔁 Los <b>recurrentes</b> se incluyen una sola vez y se repiten solos cada mes hasta que pulses su botón para detenerlos (dejan de contar desde el mes que miras, sin borrar el historial). Los <b>puntuales</b> viven solo en el mes donde los escribes.</div>
           <div class="note">🔁 Si en un mes te queda dinero libre, pasa <b>solo</b> como ingreso del mes siguiente (y de ahí en cadena). Cambia cualquier gasto, cuota o ahorro de un mes y todos los sobrantes futuros se <b>recalculan al instante</b>.</div>
         </div>
       </div>
       <div class="card"><h3 class="h-fij">② Gastos fijos por categoría <span class="sub" id="subFij"></span><button class="mini save" id="savFij" onclick="saveSec('fij')">💾 Guardar</button></h3>
         <div class="body">
           <div class="scroll"><table id="tblFij">
-            <thead><tr><th>⠿ Concepto (renombrable)</th><th style="width:110px">Categoría</th><th style="width:110px">Valor mensual</th><th style="width:34px"></th></tr></thead>
+            <thead><tr><th>⠿ Concepto (renombrable)</th><th style="width:100px">Categoría</th><th style="width:96px">Se paga con</th><th style="width:104px">Valor mensual</th><th style="width:34px"></th></tr></thead>
             <tbody></tbody><tfoot><tr><td>Total fijos</td><td class="num" id="totFij"></td><td></td></tr></tfoot>
           </table></div>
           <div class="rowAdd"><input id="fij_n" placeholder="Concepto (ej. Netflix)"><select id="fij_k"></select><input type="number" id="fij_v" placeholder="Valor"><button class="mini primary" onclick="addFij()">+ Agregar</button></div>
@@ -186,7 +185,7 @@ tr.carryrow td{background:var(--carrybg)}
         <div class="body">
           <div class="mini-lbl" style="margin:2px 0 4px"><b>Cuota fija mensual</b> — muévete con ◀ ▶ y escribe en <b>“pago de este mes”</b> lo que te predijo el banco para CADA mes; queda guardado mes a mes:</div>
           <div class="scroll"><table id="tblCuoF">
-            <thead><tr><th>Entidad / crédito</th><th style="width:100px">Cuota base</th><th style="width:110px">Pago DE ESTE mes</th><th style="width:110px">Saldo</th><th style="width:34px"></th></tr></thead>
+            <thead><tr><th>Entidad / crédito</th><th style="width:76px">Cuota base</th><th style="width:88px">Pago mínimo</th><th style="width:96px">Pago calculado</th><th style="width:96px">💵 Vas a cancelar</th><th style="width:98px">Saldo según banco</th><th style="width:98px">Saldo recalculado</th><th style="width:30px"></th></tr></thead>
             <tbody></tbody><tfoot><tr><td colspan="2">Total cuotas que pagas este mes</td><td class="num" id="totCuoF"></td><td class="num" id="totSaldo"></td><td></td></tr></tfoot>
           </table></div>
           <div class="rowAdd"><input id="cuof_e" placeholder="Entidad (ej. Nequi)"><input type="number" id="cuof_c" placeholder="Cuota/mes"><input type="number" id="cuof_s" placeholder="Saldo"><button class="mini primary" onclick="addCuoF()">+ Agregar</button></div>
@@ -227,7 +226,7 @@ tr.carryrow td{background:var(--carrybg)}
         <div class="body">
           <div class="kpis">
             <div class="kpi"><div class="t">Ingresos</div><div class="v" id="kIng"></div></div>
-            <div class="kpi"><div class="t">Gastos totales</div><div class="v" id="kGas"></div></div>
+            <div class="kpi"><div class="t">Sale del bolsillo</div><div class="v" id="kGas"></div></div>
             <div class="kpi"><div class="t">Queda libre</div><div class="v" id="kLib"></div></div>
             <div class="kpi"><div class="t">Ahorro del mes</div><div class="v" id="kAho"></div></div>
             <div class="kpi"><div class="t">Deuda a fin de mes</div><div class="v" id="kDeu"></div></div>
@@ -283,6 +282,10 @@ tr.carryrow td{background:var(--carrybg)}
       <li><b>Escribe en el mes abierto</b> (pill verde “MES ABIERTO”): cada categoría tiene su cajita con scroll y sus listas. Edita con calma y pulsa el <b>💾 Guardar</b> del encabezado de esa categoría (se pone naranja con • si tienes cambios sin guardar).</li>
       <li><b>Planea los meses que vienen:</b> con <b>▶</b> avanza a noviembre, diciembre… (pill dorada “PLAN”). Ahí escribes lo que el banco o la app te predice: en <b>Cuotas → “pago de este mes”</b> dejas la cuota que sabes que tendrás en ESE mes (queda guardada mes a mes), y también puedes dejar gastos u ahorros planeados. La gráfica <b>🔭 Futuro planeado</b> y la predicción lo usan para decirte desde hoy cómo vienen esos meses.</li>
       <li><b>Cierra el mes</b> con 🔒: todo lo vivido pasa al <b>HISTORIAL</b>, la hoja queda limpia, los fijos/suscripciones/cuotas continúan y las fechas de cobro corren solas. El historial es editable: corrige cifras reales y guarda para que la predicción sea más acertada.</li>
+      <li><b>Ciclo de tarjeta correcto:</b> los cargos con tarjeta del mes se facturan a fin de mes y <b>se cobran el mes siguiente</b>; el pago de este mes cubre los cargos del anterior y el resto abona a capital. Nada se duplica y la deuda no se infla con servicios que ya pagaste.</li>
+      <li><b>Lo que pagas con tarjeta no se duplica:</b> marca en cada fijo con qué lo pagas (“Se paga con”): si es tarjeta, el cargo cuenta una sola vez como gasto y dentro del pago de la tarjeta se separa <b>cargos del mes</b> vs <b>abono a capital</b>; la deuda solo se mueve con lo que dejas de pagar y sus intereses (que se deducen solos de tus saldos reales).</li>
+      <li><b>Ingresos extra recurrentes:</b> agréguelos una vez con <b>+ Recurrente 🔁</b> y se suman solos cada mes; cuando dejen de aplicarse, pulsa el botón 🔁 del ítem y se detiene desde ese mes (el pasado no se toca).</li>
+      <li><b>Créditos sin configurar tasas:</b> tú solo escribes lo que dice el banco (<b>Saldo según banco</b>) y lo que vas a pagar (<b>Pago</b>); el pago se resta del mes <b>siguiente</b> y el interés de cada mes se calcula sobre el saldo ya descontado. La <b>tasa implícita se deduce sola</b> comparando un mes con el siguiente y con ella se proyectan los meses futuros. Además puedes tener <b>varios ingresos fijos</b> y eliminarlos con ✕.</li>
       <li><b>Sobrante que rueda:</b> lo que te queda libre en un mes pasa automáticamente como ingreso del mes siguiente (fila verde 🔁 en Ingresos), y si editas algo de un mes, toda la cadena futura se recalcula al instante. El <b>ahorro</b> descuenta al instante: de lo disponible, del sobrante y del faltante de la meta.</li>
       <li><b>Metas completadas:</b> al llegar al 100% la meta se pinta verde 🎉, se bloquea y, desde el mes siguiente, desaparece de la lista activa pero queda en el <b>registro de metas completadas</b> con su mes de cierre.</li>
       <li><b>Deuda que se resta sola:</b> cada cuota que pagas o planeas descuenta la <b>deuda final</b> de ese mes: el panel muestra la deuda a fin de mes, el historial resta solo cuotas y abonos mes a mes, y la predicción simula tu plan de pagos para decirte cuándo quedas libre.</li>
@@ -318,7 +321,7 @@ let LISTAS={
   medios:["Efectivo","Nequi","Daviplata","Tarjeta NU","Tarjeta débito","Otro"],
   ciclos:["Mensual","Trimestral","Semestral","Anual"],
 };
-const RESPALDO_BASE = {"abierto": "2026-10", "mes": "2026-10", "ingFijo": 2900000, "fijos": [{"id": "1s64ncp", "c": "Servicios Luz", "v": 150000, "cat": "Servicios"}, {"id": "di52jw6", "c": "Servicio Agua", "v": 100000, "cat": "Servicios"}, {"id": "vh6o36e", "c": "Plan celular", "v": 60000, "cat": "Servicios"}, {"id": "2ugm9h6", "c": "Internet", "v": 90000, "cat": "Servicios"}, {"id": "fpyc2k9", "c": "Netflix", "v": 31000, "cat": "Suscripciones"}, {"id": "kusc3ip", "c": "Spotify", "v": 31000, "cat": "Suscripciones"}, {"id": "manfmrh", "c": "Nube Ari", "v": 10000, "cat": "Suscripciones"}, {"id": "vloel3c", "c": "Mercado", "v": 500000, "cat": "Mercado"}, {"id": "1g23j7c", "c": "Almuerzos Ari FDS", "v": 200000, "cat": "Personales"}, {"id": "9x47e3k", "c": "Almuerzo Semanal Ari", "v": 80000, "cat": "Personales"}], "cuotasF": [{"id": "hrftwoo", "e": "Nequi", "c": 108000, "s": 1561354, "p": 108000}, {"id": "e0v223s", "e": "Lulo", "c": 150000, "s": 4179666, "p": 150000}, {"id": "zfajlka", "e": "Tarjeta NU (pago)", "c": 400000, "s": 8089005, "p": 1850000}, {"id": "4qk2z6e", "e": "Crédito celular", "c": 60000, "s": 339124}], "cuotasE": [], "metas": [{"id": "0ectgiq", "n": "Fondo emergencia", "o": 3000000, "a": 0}, {"id": "5buxiu1", "n": "Computador", "o": 3500000, "a": 0}], "buckets": {"2026-10": {"ingresos": [{"id": "4mlvtum", "f": "2026-10-23", "c": "Pago U Rerepentacional", "v": 1000000}], "hormiga": [{"id": "x719fg1", "f": "2026-10-29", "c": "Hotel capital cheer", "k": "Varios", "m": "Efectivo", "v": 360000}], "ahorro": [], "pagos": {"zfajlka": 1850000, "hrftwoo": 108000, "e0v223s": 150000}}, "2026-11": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2026-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-01": {"ingresos": [{"id": "z2yqggh", "f": "2026-10-23", "c": "Prima", "v": 2800000}], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-04": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-05": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-06": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-07": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-08": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}}, "historial": [], "LISTAS": {"catFijas": ["Vivienda", "Servicios", "Mercado", "Suscripciones", "Transporte", "Salud", "Mascotas", "Personales", "Otros"], "catHormiga": ["Cafetería", "Restaurantes", "Mercadito", "Transporte/Taxi", "Domicilios", "Antojos", "Farmacia", "Matrícula/Educación", "Varios"], "medios": ["Efectivo", "Nequi", "Daviplata", "Tarjeta NU", "Tarjeta débito", "Otro"], "ciclos": ["Mensual", "Trimestral", "Semestral", "Anual"]}};
+const RESPALDO_BASE = {"abierto": "2026-10", "mes": "2026-11", "ingFijo": 2900000, "fijos": [{"id": "1s64ncp", "c": "Servicios Luz", "v": 150000, "cat": "Servicios", "desde": "2000-01", "hasta": null}, {"id": "di52jw6", "c": "Servicio Agua", "v": 100000, "cat": "Servicios", "desde": "2000-01", "hasta": null}, {"id": "vh6o36e", "c": "Plan celular", "v": 60000, "cat": "Servicios", "desde": "2000-01", "hasta": null, "med": "Tarjeta NU"}, {"id": "2ugm9h6", "c": "Internet", "v": 90000, "cat": "Servicios", "desde": "2000-01", "hasta": null, "med": "Tarjeta NU"}, {"id": "fpyc2k9", "c": "Netflix", "v": 31000, "cat": "Suscripciones", "desde": "2000-01", "hasta": null, "med": "Tarjeta NU"}, {"id": "kusc3ip", "c": "Spotify", "v": 31000, "cat": "Suscripciones", "desde": "2000-01", "hasta": null, "med": "Tarjeta NU"}, {"id": "manfmrh", "c": "Nube Ari", "v": 10000, "cat": "Suscripciones", "desde": "2000-01", "hasta": "2026-10", "med": "Tarjeta NU"}, {"id": "vloel3c", "c": "Mercado", "v": 500000, "cat": "Mercado", "desde": "2000-01", "hasta": "2026-09"}, {"id": "1g23j7c", "c": "Almuerzos Ari FDS", "v": 80000, "cat": "Personales", "desde": "2000-01", "hasta": "2026-10"}, {"id": "9x47e3k", "c": "Almuerzo Semanal Ari", "v": 80000, "cat": "Personales", "desde": "2000-01", "hasta": "2026-09"}, {"id": "hudt5bm", "c": "Plan celular mamá", "v": 50000, "cat": "Servicios", "desde": "2026-10", "hasta": null}, {"id": "r54dtcv", "c": "Arriendo", "v": 800000, "cat": "Vivienda", "desde": "2027-01", "hasta": null}], "cuotasF": [{"id": "hrftwoo", "e": "Nequi", "c": 108000, "s": 1561354}, {"id": "e0v223s", "e": "Lulo", "c": 150000, "s": 4179666}, {"id": "zfajlka", "e": "Tarjeta NU (pago)", "c": 670000, "s": 8089005, "p": 0}, {"id": "4qk2z6e", "e": "Crédito celular", "c": 60000, "s": 339124, "p": 2791240}], "cuotasE": [], "metas": [{"id": "0ectgiq", "n": "Fondo emergencia", "o": 3000000, "a0": 0, "fin": null}, {"id": "5buxiu1", "n": "Computador", "o": 3500000, "a0": 0, "fin": null}, {"id": "vnontof", "n": "Electrodomesticos", "o": 3000000, "a": 0, "fin": null}], "buckets": {"2026-10": {"ingresos": [{"id": "4mlvtum", "f": "2026-10-23", "c": "Pago U Rerepentacional", "v": 900000}, {"id": "luum8xx", "f": "2026-10-25", "c": "Plan celular madre", "v": 50000}], "hormiga": [{"id": "x719fg1", "f": "2026-10-29", "c": "Hotel capital cheer", "k": "Varios", "m": "Efectivo", "v": 360000}, {"id": "w447g1t", "f": "2026-10-24", "c": "Apoyo", "k": "Farmacia", "m": "Efectivo", "v": 13800}, {"id": "h0urc50", "f": "2026-10-24", "c": "Gaseosa", "k": "Antojos", "m": "Efectivo", "v": 1750}, {"id": "5aw6na0", "f": "2026-10-24", "c": "Detalle", "k": "Varios", "m": "Efectivo", "v": 31000}, {"id": "0ak22ka", "f": "2026-10-25", "c": "Comida", "k": "Cafetería", "m": "Efectivo", "v": 10200}, {"id": "mndirq7", "f": "2026-10-25", "c": "te y milhoja", "k": "Cafetería", "m": "Efectivo", "v": 17000}, {"id": "yfydlux", "f": "2026-10-26", "c": "abono mas para pista cheer", "k": "Matrícula/Educación", "m": "Efectivo", "v": 4000}], "ahorro": [{"id": "d73urtr", "f": "2026-10-26", "m": "Electrodomesticos", "v": 500000}], "pagos": {"zfajlka": 1991488, "hrftwoo": 108000, "e0v223s": 150000}}, "2026-11": {"saldos": {"zfajlka": 6185134}, "ingresos": [{"id": "dhvggfx", "f": "2026-11-01", "c": "Plan celular madre", "v": 60000}], "hormiga": [], "ahorro": [{"id": "skjy482", "f": "2026-11-01", "m": "Electrodomesticos", "v": 500000}, {"id": "0llgce2", "f": "2026-11-01", "m": "Fondo emergencia", "v": 500000}], "pagos": {"4qk2z6e": 2791240, "zfajlka": 0}}, "2026-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-01": {"ingresos": [{"id": "z2yqggh", "f": "2026-10-23", "c": "Prima", "v": 2800000}], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-04": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-05": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-06": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-07": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-08": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-10": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-11": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-01": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-04": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-05": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-06": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-07": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-08": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-10": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-11": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-01": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}}, "historial": [], "LISTAS": {"catFijas": ["Vivienda", "Servicios", "Mercado", "Suscripciones", "Transporte", "Salud", "Mascotas", "Personales", "Otros"], "catHormiga": ["Cafetería", "Restaurantes", "Mercadito", "Transporte/Taxi", "Domicilios", "Antojos", "Farmacia", "Matrícula/Educación", "Varios"], "medios": ["Efectivo", "Nequi", "Daviplata", "Tarjeta NU", "Tarjeta débito", "Otro"], "ciclos": ["Mensual", "Trimestral", "Semestral", "Anual"]}};
 function DEFAULT(){ return mig(JSON.parse(JSON.stringify(RESPALDO_BASE))); }
 let S=load();
 function load(){
@@ -345,7 +348,14 @@ function mig(o){
     const hist=sum(o.historial||[],h=>sum((h.det&&h.det.ahorro)||[],r=>r[0]===mt.n?r[1]:0));
     const open=sum(((o.buckets||{})[o.abierto]||{}).ahorro||[],r=>r.m===mt.n?r.v:0);
     mt.a0=Math.max(0,(mt.a||0)-hist-open); delete mt.a; } });
-  (o.cuotasF||[]).forEach(r=>{ if(r.p!=null){ Bk(o,o.abierto).pagos[r.id]=r.p; delete r.p; } });
+  (o.cuotasF||[]).forEach(r=>{ if(r.p!=null){ const pg=Bk(o,o.mes||o.abierto).pagos; if(pg[r.id]==null) pg[r.id]=r.p; delete r.p; } delete r.ea; });
+  (function(){   /* pagos de tarjeta guardados como total -> convertir a pago minimo (restar cargos del mes anterior); 0 = no definido */
+    const cCharge=(o,m)=>sum(o.fijos||[],r=>aplicaFijo(r,m)&&/Tarjeta/i.test(r.med||"")?r.v:0)+sum(((o.buckets||{})[m]||{}).hormiga||[],x=>/Tarjeta/i.test(x.m||"")?x.v:0);
+    for(const m in (o.buckets||{})){ for(const id in o.buckets[m].pagos){ const r=(o.cuotasF||[]).find(x=>x.id===id); if(!r||!/Tarjeta/i.test(r.e||""))continue;
+      const v=o.buckets[m].pagos[id]; if(v===0){ delete o.buckets[m].pagos[id]; } else { o.buckets[m].pagos[id]=Math.max(0, v-cCharge(o,addM(m,-1))); } } }
+  })();
+  if(!o.ingFijos){ o.ingFijos=[{id:uid(),c:"Salario",v:+o.ingFijo||0}]; }
+  if(!o.ingRec) o.ingRec=[];
   o.LISTAS.ciclos=o.LISTAS.ciclos||LISTAS.ciclos;
   return o;
 }
@@ -356,34 +366,61 @@ const cuotaECobra=(m,r)=> r.r>0 && m>=S.abierto;
 function save(){ recomputefins(); store.set(KEY, JSON.stringify(S)); syncPush(); }
 
 function diffMeses(a,b){const[ya,ma]=a.split("-").map(Number),[yb,mb]=b.split("-").map(Number);return (yb-ya)*12+(mb-ma);}
-function pagoPlaneado(m,r){const pg=B(m).pagos[r.id];return pg!=null?+pg:r.c;}
-function saldoIni(m,r){
-  if(m<=S.abierto)return Math.max(0,r.s);
-  let s=r.s,mm=S.abierto;
-  while(mm<m){s=Math.max(0,s-Math.min(pagoPlaneado(mm,r),s));mm=addM(mm,1);}
+function esCreditoTarjeta(r){ return /Tarjeta/i.test(r.e||""); }
+function pagoMin(m,r){ const pg=B(m).pagos[r.id]; const ceroEsVacio = pg===0 && esCreditoTarjeta(r); return (pg!=null && pg!=="" && !ceroEsVacio)? +pg : r.c; }
+function pagoCalc(m,r){ return pagoMin(m,r) + (esCreditoTarjeta(r)? cardCharges(addM(m,-1)) : 0); }  /* minimo + cargos con tarjeta del mes anterior */
+function pagoAplic(m,r){ const b=B(m); const px=b.pagox&&b.pagox[r.id]; return (px!=null&&px!=="")? +px : pagoCalc(m,r); }  /* lo que TÚ decidiste cancelar ese mes */
+function pagoPlaneado(m,r){ return pagoAplic(m,r); }
+function pagoEf(m,r){ const c=esCreditoTarjeta(r)?cardCharges(m):0; return Math.min(pagoPlaneado(m,r), saldoIni(m,r)+c); }  /* nunca pasa de saldo+cargos */
+function anchor(m,r){ const b=B(m); return (b.saldos && b.saldos[r.id]!=null)? +b.saldos[r.id] : null; }
+function tasaDerivada(mm,r){
+  /* interes implicito de mm -> mm+1: (saldo + cargos con tarjeta - pago) vs lo que reporto el banco */
+  const nxt=anchor(addM(mm,1),r); if(nxt==null) return null;
+  const c=esCreditoTarjeta(r)? cardCharges(mm):0;
+  const base=Math.max(0, saldoIni(mm,r)+c-pagoEf(mm,r));
+  return base>0? Math.max(0, nxt/base - 1) : 0;
+}
+function saldoCalc(m,r){
+  /* cadena propia: anclas anteriores + cargos tarjeta - pagos + interes implicito; SIN usar el dato del banco del mes m */
+  let a0=anchor(S.abierto,r); let s=a0!=null?Math.max(0,a0):Math.max(0,r.s);
+  let mm=S.abierto, iLast=0;
+  while(mm<m){
+    const c=esCreditoTarjeta(r)? cardCharges(mm):0;
+    const pag=Math.min(pagoPlaneado(mm,r), s+c);
+    const base=Math.max(0, s+c-pag);
+    const nm=addM(mm,1);
+    const nxt = nm<m ? anchor(nm,r) : null;
+    if(nxt!=null){ if(base>0) iLast=Math.max(0,nxt/base-1); s=Math.max(0,nxt); }
+    else s=base*(1+iLast);
+    mm=nm;
+  }
   return s;
 }
-function pagoEf(m,r){return Math.min(pagoPlaneado(m,r),saldoIni(m,r));}   /* nunca pasa del saldo restante */
-function saldoProy(m,r){return Math.max(0,saldoIni(m,r)-pagoEf(m,r));}
+function saldoIni(m,r){
+  const a=anchor(m,r); if(a!=null) return Math.max(0,a);
+  if(m<=S.abierto) return Math.max(0,r.s);
+  return saldoCalc(m,r);
+}
+function saldoFin(m,r){ return saldoIni(addM(m,1),r); }  /* lo que quedara debiendo al cerrar m */
+function espRestIni(m,r){ if(m<=S.abierto)return r.r; return Math.max(0,r.r-Math.max(0,diffMeses(S.abierto,m))); }
 function espRest(m,r){ if(m<S.abierto)return r.r; return Math.max(0,r.r-(diffMeses(S.abierto,m)+1)); }
 function deudaProy(m){
   if(m<S.abierto)m=S.abierto;
-  return sum(S.cuotasF,r=>saldoProy(m,r))+sum(S.cuotasE,r=>r.cu*espRest(m,r));
+  return sum(S.cuotasF,r=>saldoIni(addM(m,1),r))+sum(S.cuotasE,r=>r.cu*espRest(m,r));
 }
-function chainDeuda(){const d=[];S.historial.forEach((h,i)=>{d.push(i===0?(+h.deuda||0):Math.max(0,d[i-1]-((+h.cuo||0)+(+h.abo||0))));});return d;}
-function pgPlaneadoSim(m,qf,fallback){ if(!qf)return fallback; const pg=B(m).pagos[qf.id]; return pg!=null?+pg:qf.c; }
+function chainDeuda(){const d=[];S.historial.forEach((h,i)=>{d.push(i===0?(+h.deuda||0):Math.max(0,d[i-1]-((+h.cuo||0)-(+h.cardP||0))-(+h.abo||0)));});return d;}
 function simDeuda(){
-  const saldos=S.cuotasF.map(r=>({id:r.id,s:r.s,c:r.c}));
-  let esp=S.cuotasE.map(r=>({cu:r.cu,r:r.r}));
-  let m=S.abierto,meses=0;const hitos=[];
-  const tot=()=>sum(saldos,x=>x.s)+sum(esp,x=>x.cu*x.r);
-  while(tot()>0&&meses<600){
-    saldos.forEach(q=>{const qf=S.cuotasF.find(x=>x.id===q.id);const pag=Math.min(q.s,pgPlaneadoSim(m,qf,q.s));q.s=Math.max(0,q.s-pag);});
-    esp.forEach(x=>{if(x.r>0)x.r-=1;});esp=esp.filter(x=>x.r>0);
-    meses++;hitos.push({mes:m,deuda:tot()});m=addM(m,1);
-  }
-  return {meses,hasta:m,hitos};
+  const totAt=mm=>sum(S.cuotasF,r=>saldoIni(mm,r))+sum(S.cuotasE,r=>r.cu*espRestIni(mm,r));
+  let m=S.abierto;const hitos=[];
+  while(totAt(addM(m,1))>0.5&&hitos.length<600){ hitos.push({mes:m,deuda:totAt(addM(m,1))}); m=addM(m,1); }
+  return {meses:hitos.length, hasta:addM(m,1), hitos};
 }
+function esTarjeta(x){ return /Tarjeta/i.test(x||""); }
+function cardCharges(m){
+  return sum(S.fijos||[], r=> aplicaFijo(r,m)&&esTarjeta(r.med)? r.v:0)
+       + sum(B(m).hormiga, x=> esTarjeta(x.m)? x.v:0);
+}
+function ingRecur(m){ return sum(S.ingRec||[], r=> (r.desde||"2000-01")<=m && (r.hasta==null || m<=r.hasta) ? r.v : 0); }
 function carry0(){
   if(!S.historial.length)return 0;
   const h=S.historial[S.historial.length-1];
@@ -398,17 +435,20 @@ function carryInFn(m){
 function totals(m,carry){
   m=m||S.mes; const b=B(m);
   if(carry===undefined) carry=carryInFn(m);
-  const ing=S.ingFijo+sum(b.ingresos,x=>x.v)+carry;
+  const ing=sum(S.ingFijos||[],x=>x.v)+ingRecur(m)+sum(b.ingresos,x=>x.v)+carry;
   const fij=sum(S.fijos,x=>aplicaFijo(x,m)?x.v:0);
   const hor=sum(b.hormiga,x=>x.v);
+  const consumo=fij+hor;
+  const cardNow=cardCharges(m);          /* cargos con tarjeta HECHOS en m: se facturan y pagan en m+1 */
+  const cardCub=cardCharges(addM(m,-1)); /* cargos del mes anterior: son los que cubre el pago de este mes */
   const cuo=sum(S.cuotasF,r=>saldoIni(m,r)>0?pagoEf(m,r):0)+sum(S.cuotasE,r=>cuotaECobra(m,r)?r.cu:0);
   const aho=sum(b.ahorro,x=>x.v);
-  const gas=fij+hor+cuo;
+  const gas=consumo-cardNow+cuo;      /* flujo de caja: lo que realmente sale del bolsillo */
   const lib=ing-gas-aho;
   const deuda=deudaProy(m);
-  const comp=ing>0?(fij+cuo)/ing:0;
+  const comp=ing>0?(fij-sum(S.fijos,x=>aplicaFijo(x,m)&&esTarjeta(x.med)?x.v:0)+cuo)/ing:0;
   const fijCat={}; (S.fijos||[]).forEach(x=>{if(!aplicaFijo(x,m))return;const k=x.cat||"Otros"; fijCat[k]=(fijCat[k]||0)+(+x.v||0);});
-  return {ing,fij,fijCat,hor,cuo,aho,gas,lib,deuda,comp,carry};
+  return {ing,fij,fijCat,hor,cuo,aho,gas,lib,deuda,comp,carry,consumo,cardC:cardNow,cardPrev:cardCub,principal:Math.max(0,cuo-cardCub)};
 }
 
 const $=id=>document.getElementById(id);
@@ -416,7 +456,7 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","
 const opts=(l,sel)=>l.map(o=>`<option${o===sel?" selected":""}>${esc(o)}</option>`).join("");
 
 /* ---- guardado por categoria ---- */
-const SECMAP={ingresos:"ing",fijos:"fij",hormiga:"hor",cuotasF:"cuo",cuotasE:"cuo",ahorro:"aho",metas:"aho",historial:"hist"};
+const SECMAP={ingresos:"ing",ingFijos:"ing",ingRec:"ing",fijos:"fij",hormiga:"hor",cuotasF:"cuo",cuotasE:"cuo",ahorro:"aho",metas:"aho",historial:"hist"};
 const SECNOM={ing:"Ingresos",fij:"Gastos fijos",hor:"Gastos hormiga",cuo:"Cuotas y créditos",aho:"Ahorro y metas",hist:"Historial"};
 const SECBTN={ing:"savIng",fij:"savFij",hor:"savHor",cuo:"savCuo",aho:"savAho",hist:"savHist"};
 const DIRTY=new Set();
@@ -440,24 +480,37 @@ function renderMesLabel(){
   if(S.mes>S.abierto){pb.hidden=false;pb.innerHTML="🔭 Estás <b>planeando "+mesLabel(S.mes)+"</b>: lo que escribas aquí es un plan (cuotas que predice el banco, gastos que ya sabes, ahorros que quieres). No toca tu mes abierto; se usará en las gráficas de futuro y la predicción, y se volverá real cuando vivas y cierres ese mes.";}
   else pb.hidden=true;
 }
+function findRow(id){
+  const cols={ingresos:B(S.mes).ingresos,hormiga:B(S.mes).hormiga,ahorro:B(S.mes).ahorro,ingFijos:S.ingFijos,ingRec:S.ingRec,fijos:S.fijos,subs:S.subs,cuotasF:S.cuotasF,cuotasE:S.cuotasE,metas:S.metas};
+  for(const k in cols){ const r=(cols[k]||[]).find(x=>x.id===id); if(r) return {r,coll:k}; }
+  return null;
+}
 function bindInputs(tb,coll){
   tb.querySelectorAll("[data-id]").forEach(el=>{
     el.addEventListener("change",()=>{
-      const arr=(coll==="ingresos"||coll==="hormiga"||coll==="ahorro")?B(S.mes)[coll]:S[coll];
-      const row=arr.find(x=>x.id===el.dataset.id);if(!row)return;
+      const f=findRow(el.dataset.id); if(!f)return; const row=f.r, c=f.coll;
       const k=el.dataset.k;
+      if(c==="cuotasF"&&(k==="p"||k==="px"||k==="sal"||k==="s"))return;   /* esos inputs los manejan listeners propios */
       row[k]=(el.type==="number")?(+el.value||0):el.value;
-      if(coll==="cuotasF"&&k==="s"&&row.s<=0){S.cuotasF=S.cuotasF.filter(x=>x.id!==row.id);flash("🎉 "+row.e+" en 0: eliminada de tu lista de deudas.");}
-      markDirty(SECMAP[coll]||"ing");renderAll(coll==="metas"||coll==="ahorro");
+      if(c==="cuotasF"&&k==="s"&&row.s<=0){S.cuotasF=S.cuotasF.filter(x=>x.id!==row.id);flash("🎉 "+row.e+" en 0: eliminada de tu lista de deudas.");}
+      markDirty(SECMAP[c]||"ing");renderAll(c==="metas"||c==="ahorro");
     });
   });
 }
 function renderIng(){
-  $("ingFijo").value=S.ingFijo;
   const arr=B(S.mes).ingresos, tb=$("tblIng").tBodies[0];
+  const fijosRows=(S.ingFijos||[]).map(r=>`<tr class="del" style="background:var(--carrybg)"><td><span class="pill" title="Se repite cada mes">fijo</span></td>
+    <td><input class="inline" value="${esc(r.c)}" data-k="c" data-id="${r.id}"></td>
+    <td><input type="number" class="inline" value="${r.v}" data-k="v" data-id="${r.id}"></td>
+    <td><button class="mini danger" onclick="delRow('ingFijos','${r.id}')">✕</button></td></tr>`).join("");
+  const recRows=(S.ingRec||[]).map(r=>{const on=(r.desde||"2000-01")<=S.mes&&(r.hasta==null||S.mes<=r.hasta);
+    return `<tr class="del" style="${on?"background:var(--okbg)":"opacity:.55"}"><td><span class="pill" title="Ingreso extra que se repite solo cada mes">🔁</span></td>
+    <td><input class="inline" value="${esc(r.c)}" data-k="c" data-id="${r.id}"></td>
+    <td><input type="number" class="inline" value="${r.v}" data-k="v" data-id="${r.id}"></td>
+    <td style="white-space:nowrap"><button class="mini ${on?"":"primary"}" title="${on?"Dejar de repetirlo desde este mes":"Volver a repetirlo desde este mes"}" onclick="toggleIngRec('${r.id}')">${on?"🔁 Sí":"⏸ No"}</button> <button class="mini danger" onclick="delRow('ingRec','${r.id}')">✕</button></td></tr>`;}).join("");
   const carry=totals().carry;
   const carryRow=`<tr class="carryrow"><td colspan="2" class="mini-lbl" title="Automático: lo que quedó libre el mes anterior (o el último cerrado)">🔁 Sobrante del mes anterior (automático)</td><td class="num" style="color:var(--teal)">${carry>0?F(carry):"—"}</td><td></td></tr>`;
-  tb.innerHTML=carryRow+arr.map(r=>`<tr class="del"><td><span class="mini-lbl" title="Fecha automática">${(r.f||"").slice(8,10)}/${(r.f||"").slice(5,7)}</span></td>
+  tb.innerHTML=fijosRows+recRows+carryRow+arr.map(r=>`<tr class="del"><td><span class="mini-lbl" title="Fecha automática">${(r.f||"").slice(8,10)}/${(r.f||"").slice(5,7)}</span></td>
     <td><input class="inline" value="${esc(r.c)}" data-k="c" data-id="${r.id}"></td>
     <td><input type="number" class="inline" value="${r.v}" data-k="v" data-id="${r.id}"></td>
     <td><button class="mini danger" onclick="delRow('ingresos','${r.id}')">✕</button></td></tr>`).join("");
@@ -476,10 +529,11 @@ function renderFij(){
     const items=S.fijos.filter(x=>(x.cat||"Otros")===cat&&aplicaFijo(x,S.mes));
     if(!items.length)return;
     const cc=catColor(cat);
-    html+=`<tr class="cathead" data-cat="${esc(cat)}"><td colspan="4"><span class="catdot" style="background:${cc}"></span>${esc(cat)} · ${items.length} ítem(s) · ${F(sum(items,x=>x.v))}</td></tr>`;
+    html+=`<tr class="cathead" data-cat="${esc(cat)}"><td colspan="8"><span class="catdot" style="background:${cc}"></span>${esc(cat)} · ${items.length} ítem(s) · ${F(sum(items,x=>x.v))}</td></tr>`;
     items.forEach(r=>{ html+=`<tr class="del fijrow" draggable="true" data-id="${r.id}" style="--cc:${cc}">
       <td><span class="grip" title="Arrastra para reordenar">⠿</span><input class="inline" list="dlFij" value="${esc(r.c)}" data-k="c" data-id="${r.id}">${r.hasta?` <span class="pill" title="Último mes en que aplica">→ ${mesCorto(r.hasta)}</span>`:(r.desde&&r.desde>S.abierto?` <span class="pill" title="Empieza a aplicar este mes">desde ${mesCorto(r.desde)}</span>`:"")}</td>
       <td><select class="inline" data-k="cat" data-id="${r.id}">${opts(cats,r.cat||"Otros")}</select></td>
+      <td><select class="inline" data-k="med" data-id="${r.id}" title="Si lo pagas con tarjeta de crédito, el cargo no duplica: se descuenta del pago de la tarjeta">${opts(["Efectivo/Nequi"].concat(S.LISTAS.medios.filter(x=>/Tarjeta/.test(x))), r.med||"Efectivo/Nequi")}</select></td>
       <td><input type="number" class="inline" value="${r.v}" data-k="v" data-id="${r.id}"></td>
       <td><button class="mini danger" title="Eliminar" onclick="delRow('fijos','${r.id}')">✕</button></td></tr>`; });
   });
@@ -512,10 +566,13 @@ function renderHor(){
   $("hor_m").innerHTML=opts(S.LISTAS.medios,"");
 }
 function setTotSaldo(){
-  const live=sum(S.cuotasF,r=>r.s)+sum(S.cuotasE,r=>r.cu*r.r);
+  const m=S.mes;
+  const tot=m>S.abierto
+    ? sum(S.cuotasF,r=>saldoIni(m,r))+sum(S.cuotasE,r=>r.cu*espRestIni(m,r))
+    : sum(S.cuotasF,r=>r.s)+sum(S.cuotasE,r=>r.cu*r.r);
   const el=$("totSaldo");
-  el.textContent=F(S.mes>S.abierto? totals().deuda : live);
-  el.title=S.mes>S.abierto? "Suma de saldos proyectados a fin de "+mesLabel(S.mes) : "Saldo vivo de hoy";
+  el.textContent=F(tot);
+  el.title="Suma de saldos al inicio de "+mesLabel(m)+". La deuda A FIN de mes (con pagos e intereses) está en el panel.";
 }
 function renderCuo(){
   const tb=$("tblCuoF").tBodies[0];
@@ -523,12 +580,32 @@ function renderCuo(){
   tb.innerHTML=vivas.map(r=>{const pe=pagoEf(S.mes,r),cap=pe<pagoPlaneado(S.mes,r);
     return `<tr class="del"><td><input class="inline" value="${esc(r.e)}" data-k="e" data-id="${r.id}"></td>
     <td><input type="number" class="inline" value="${r.c}" data-k="c" data-id="${r.id}" title="Cuota base de referencia"></td>
-    <td><input type="number" class="inline" value="${pe}" data-k="p" data-id="${r.id}" title="${cap?"Ajustada al saldo restante ("+F(saldoIni(S.mes,r))+")":"Cuánto pagas en "+mesLabel(S.mes)}" style="border-color:${cap?"var(--warn)":"var(--coral)"}"></td>
-    <td>${S.mes>S.abierto
-      ?`<span class="num" title="Proyección a fin de ${mesLabel(S.mes)}: saldo de hoy menos tus pagos planeados" style="color:var(--soft)">${F(saldoProy(S.mes,r))}</span>`
-      :`<input type="number" class="inline" value="${r.s}" data-k="s" data-id="${r.id}" title="Saldo vivo hoy (edítalo si el banco reporta otro)">`}</td>
+    <td><input type="number" class="inline" value="${pagoMin(S.mes,r)}" data-k="p" data-id="${r.id}" title="Porción de financiamiento que pide el banco en ${mesLabel(S.mes)} (edítala; para tarjeta se le suman los cargos del mes anterior)" style="border-color:var(--coral)"></td>
+    <td class="num" title="Referencia: pago mínimo + cargos con tarjeta del mes anterior" style="color:var(--soft)">${F(pagoCalc(S.mes,r))}</td>
+    <td><input type="number" class="inline" value="${Math.round(pagoAplic(S.mes,r))}" data-k="px" data-id="${r.id}" title="Lo que VAS a cancelar en ${mesLabel(S.mes)}: por defecto el pago calculado; escríbelo si vas a abonar otro valor. Este es el que se descuenta de tus ingresos y baja la deuda" style="border-color:var(--coral);font-weight:700"></td>
+    <td><input type="number" class="inline" value="${(()=>{const a=anchor(S.mes,r);return Math.round(a!=null?a:saldoCalc(S.mes,r));})()}" data-k="sal" data-id="${r.id}" title="Escribe aquí lo que te dice el banco que debes en ${mesLabel(S.mes)}: la tasa de interés se deduce sola comparando con el mes anterior"></td>
+    <td class="num" title="Cálculo de la app: saldo anterior + cargos con tarjeta − pago mínimo + interés implícito. Si difiere del banco, al escribir el dato real la tasa se ajusta sola" style="color:var(--soft)">${F(Math.round(saldoCalc(S.mes,r)))}</td>
     <td><button class="mini danger" title="Eliminar" onclick="delRow('cuotasF','${r.id}')">✕</button></td></tr>`;}).join("")
     || `<tr><td colspan="5" class="note">🎉 No tienes deudas vivas en ${mesLabel(S.mes)}.</td></tr>`;
+  tb.querySelectorAll('[data-k="px"]').forEach(el=>{
+    el.addEventListener("change",()=>{
+      const r=S.cuotasF.find(x=>x.id===el.dataset.id);if(!r)return;
+      const b=B(S.mes); b.pagox=b.pagox||{};
+      if(el.value===""||+el.value===Math.round(pagoCalc(S.mes,r))) delete b.pagox[r.id]; else b.pagox[r.id]=+el.value||0;
+      markDirty("cuo"); renderAll(true);
+    });
+  });
+  tb.querySelectorAll('[data-k="sal"]').forEach(el=>{
+    el.addEventListener("change",()=>{
+      const r=S.cuotasF.find(x=>x.id===el.dataset.id);if(!r)return;
+      const b=B(S.mes); b.saldos=b.saldos||{}; b.saldos[r.id]=+el.value||0;
+      markDirty("cuo");
+      const prev=addM(S.mes,-1);
+      if(prev>=S.abierto){ const td=tasaDerivada(prev,r);
+        if(td!=null) flash("📈 Interés implícito "+mesCorto(prev)+"→"+mesCorto(S.mes)+": "+(td*100).toFixed(2)+"% mensual (calculado solo)"); }
+      renderAll(true);
+    });
+  });
   tb.querySelectorAll('[data-k="p"]').forEach(el=>{
     el.addEventListener("change",()=>{
       const r=S.cuotasF.find(x=>x.id===el.dataset.id);if(!r)return;
@@ -543,15 +620,17 @@ function renderCuo(){
     <td><button class="mini danger" onclick="delRow('cuotasE','${r.id}')">✕</button></td></tr>`).join("");
   bindInputs(te,"cuotasE");
   $("totCuoF").textContent=F(totals().cuo-sum(S.cuotasE,r=>cuotaECobra(S.mes,r)?r.cu:0));
+  $("totCuoF").title="Suma de pagos calculados del mes (mínimos + cargos con tarjeta del mes anterior)";
   setTotSaldo();
   $("totCuoE").textContent=F(sum(S.cuotasE,r=>cuotaECobra(S.mes,r)?r.cu:0));
   $("subCuo").textContent=F(totals().cuo)+" en "+mesCorto(S.mes);
   paintNoteCuo();
 }
 function paintNoteCuo(){
+  const t=totals();
   $("noteCuo").innerHTML = S.mes>S.abierto
-    ? "🔭 Mes futuro: los <b>saldos</b> y <b>cuotas faltantes</b> que ves son la <b>proyección</b> con los pagos que dejaste planeados (bajan mes a mes). El saldo de hoy se edita en el mes abierto."
-    : "La cuota específica se cuenta cada mes hasta agotarse; al cerrar descuenta 1. El <b>saldo</b> de cada crédito baja con lo que pagues o planees cada mes. Si un pago pasa del saldo restante, <b>se ajusta solo</b> a lo que falta; cuando una deuda llega a <b>0</b>, desaparece de la lista y de los meses siguientes.";
+    ? "🔭 Mes futuro: el <b>💵 pago calculado</b> ya suma los cargos con tarjeta del mes anterior; el <b>saldo</b> es proyección. Cuando el banco confirme, escribe su saldo y su pago mínimo reales y todo se reajusta."
+    : "En <b>💵 Vas a cancelar</b> eliges cuánto abonas ese mes (por defecto el <b>pago calculado</b> = mínimo + cargos con tarjeta del mes anterior, "+F(t.cardPrev)+"): ese valor es el que se descuenta de tus ingresos y baja la deuda. Compara <b>banco vs recalculado</b>: si difieren, escribe el del banco y la tasa implícita se ajusta sola.";
 }
 function renderAho(){
   const arr=B(S.mes).ahorro, tb=$("tblAho").tBodies[0];
@@ -608,7 +687,23 @@ function delRow(coll,id){
   const i=arr.findIndex(x=>x.id===id);if(i<0)return;
   arr.splice(i,1);markDirty(SECMAP[coll]);renderAll(true);
 }
+let ingFormRec=false;
+function toggleIngForm(){ ingFormRec=!ingFormRec; const b=$("ingRecToggle");
+  b.classList.toggle("primary",ingFormRec); b.textContent=ingFormRec?"🔁 Recurrente ✓":"🔁 Recurrente";
+  b.title=ingFormRec?"Se agregará como ingreso que se repite cada mes":"Se agregará como extra de un solo mes"; }
+function addIngRec(){const v=+$("ing_v").value,c=$("ing_c").value;if(!c||!v)return flash("Concepto y valor");
+  S.ingRec.push({id:uid(),c,v,desde:S.mes,hasta:null});
+  $("ing_c").value="";$("ing_v").value="";markDirty("ing");renderAll(true);
+  flash("🔁 "+c+" se repetirá cada mes desde "+mesLabel(S.mes)+".");}
+function toggleIngRec(id){const r=(S.ingRec||[]).find(x=>x.id===id);if(!r)return;
+  const on=(r.desde||"2000-01")<=S.mes&&(r.hasta==null||S.mes<=r.hasta);
+  if(on){ r.hasta=addM(S.mes,-1); flash("⏸ "+r.c+" deja de repetirse desde "+mesLabel(S.mes)+". Antes sigue intacto."); }
+  else { r.desde=S.mes; r.hasta=null; flash("🔁 "+r.c+" vuelve a repetirse desde "+mesLabel(S.mes)+"."); }
+  markDirty("ing");renderAll(true);}
+function addIngF(){const v=+$("ingf_v").value,c=$("ingf_c").value;if(!c||!v)return flash("Concepto y valor");
+  S.ingFijos.push({id:uid(),c,v});$("ingf_c").value="";$("ingf_v").value="";markDirty("ing");renderAll(true);}
 function addIng(){const v=+$("ing_v").value;if(!v)return flash("Pon un valor");
+  if(ingFormRec) return addIngRec();
   B(S.mes).ingresos.push({id:uid(),f:S.mes===S.abierto?hoy():S.mes+"-01",c:$("ing_c").value||"Extra",v});
   $("ing_c").value="";$("ing_v").value="";markDirty("ing");renderAll(true);}
 function addFij(){const v=+$("fij_v").value,c=$("fij_n").value;if(!c||!v)return flash("Escribe concepto y valor");
@@ -659,7 +754,7 @@ function addAho(){const v=+$("aho_v").value;if(!v)return flash("Pon un valor");
   flash(S.mes===S.abierto? "💜 Abonado: "+F(v)+" a "+m+" · ahorrado real: "+F(metaReal(m))
                          : "🔭 Abono planeado en "+mesLabel(S.mes)+": se volverá real al cerrar ese mes.");}
 function addMet(){const o=+$("met_o").value;if(!$("met_n").value||!o)return flash("Nombre y objetivo");
-  S.metas.push({id:uid(),n:$("met_n").value,o,a:0});$("met_n").value="";$("met_o").value="";markDirty("aho");renderAll(true);}
+  S.metas.push({id:uid(),n:$("met_n").value,o,a0:0});$("met_n").value="";$("met_o").value="";markDirty("aho");renderAll(true);}
 
 /* ---- graficas ---- */
 function svgWrap(w,h,inner){return `<svg viewBox="0 0 ${w} ${h}" role="img">${inner}</svg>`;}
@@ -698,7 +793,7 @@ function donut(el,leg,parts){
 }
 function serieReal(){
   const d=chainDeuda();
-  const hist=S.historial.map((h,i)=>({mes:h.mes,ing:h.ing,gas:h.fij+(h.sub||0)+h.hor+h.cuo,aho:h.aho,deuda:d[i]}));
+  const hist=S.historial.map((h,i)=>({mes:h.mes,ing:h.ing,gas:(h.fij+(h.sub||0)+h.hor)-(h.cardC||0)+h.cuo,aho:h.aho,deuda:d[i]}));
   const t=totals(S.abierto);
   hist.push({mes:S.abierto,ing:t.ing,gas:t.gas,aho:t.aho,deuda:t.deuda});
   return hist.slice(-7);
@@ -726,7 +821,7 @@ function renderDash(){
   let acc=sum(S.metas,m=>m.a)-totals(S.abierto).aho;const accs=ser.map(s=>{acc+=s.aho;return acc;});
   line($("chAhor"),lb,accs,"var(--plum)",true);
   const donutParts=Object.keys(t.fijCat).map(k=>({n:k,v:t.fijCat[k],c:catColor(k)}))
-    .concat([{n:"Hormiga",v:t.hor,c:"var(--gold)"},{n:"Cuotas",v:t.cuo,c:"var(--coral)"},{n:"Ahorro",v:t.aho,c:"var(--plum)"}])
+    .concat([{n:"Hormiga",v:t.hor,c:"var(--gold)"},{n:"Abono a deuda",v:t.principal,c:"var(--coral)"},{n:"Ahorro",v:t.aho,c:"var(--plum)"}])
     .filter(p=>p.v>0);
   donut($("chDonut"),$("legDonut"),donutParts);
   const futD=[1,2,3].map(k=>addM(S.abierto,k));
@@ -767,7 +862,7 @@ function renderHistTable(){
   const d=chainDeuda(),N=S.historial.length;
   tb.innerHTML=S.historial.slice().reverse().map((h,ri)=>{
     const i=N-1-ri;
-    const bal=h.ing-(h.fij+(h.sub||0)+h.hor+h.cuo)-h.aho-(h.abo||0);
+    const bal=h.ing-((h.fij+(h.sub||0)+h.hor)-(h.cardC||0)+h.cuo)-h.aho-(h.abo||0);
     const deudaCell=i===0
       ?`<input type="number" class="inline" style="width:96px" value="${h.deuda||0}" data-hk="deuda" data-mes="${h.mes}" title="Deuda inicial (única editable: las siguientes se restan solas)">`
       :`<span class="num" title="Automático: deuda anterior − cuotas − abonos de este mes" style="color:var(--soft)">${F(d[i])}</span>`;
@@ -790,7 +885,7 @@ function delMes(mes){if(!confirm("¿Eliminar "+mesLabel(mes)+" del historial? La
 function renderHistCharts(){
   const ser=S.historial.slice(-8);
   if(ser.length){
-    line($("chBal"),ser.map(s=>mesCorto(s.mes)),ser.map(s=>s.ing-(s.fij+(s.sub||0)+s.hor+s.cuo)-s.aho),"var(--teal)",true);
+    line($("chBal"),ser.map(s=>mesCorto(s.mes)),ser.map(s=>s.ing-((s.fij+(s.sub||0)+s.hor)-(s.cardC||0)+s.cuo)-s.aho),"var(--teal)",true);
     const W=320,H=150,P=30,max=Math.max(...ser.map(s=>s.deuda),1);
     const sx=i=>P+i*((W-P-10)/Math.max(1,ser.length-1));
     const dch=chainDeuda().slice(-8);
@@ -817,16 +912,18 @@ function cerrarMes(){
   if(DIRTY.size){save();DIRTY.clear();paintDirty();}
   if(!confirm("¿Cerrar "+mesLabel(S.abierto)+"?\n\nTodo lo vivido pasará al HISTORIAL y el mes abierto será "+mesLabel(addM(S.abierto,1))+" (tus planes de ese mes se conservan).\nLos fijos/suscripciones/cuotas continúan; las cuotas específicas descuentan 1 y los saldos se descuentan con lo pagado."))return;
   const m=S.abierto,b=B(m),t=totals(m);
-  S.historial.push({mes:m,ing:t.ing,fij:t.fij,sub:t.sub,hor:t.hor,cuo:t.cuo,aho:t.aho,abo:0,
-    deuda:(()=>{const d=chainDeuda();const base=d.length?d[d.length-1]:null;return base!=null?Math.max(0,base-t.cuo):deudaProy(m);})(),
-    det:{ingresos:[["Ingreso fijo",S.ingFijo],...b.ingresos.map(r=>[r.c,r.v])],
+  S.historial.push({mes:m,ing:t.ing,fij:t.fij,sub:t.sub,hor:t.hor,cuo:t.cuo,aho:t.aho,abo:0,cardC:t.cardC,cardP:t.cardPrev,
+    deuda:(()=>{const d=chainDeuda();const base=d.length?d[d.length-1]:null;return base!=null?Math.max(0,base-t.cuo+(t.cardPrev||0)):deudaProy(m);})(),
+    det:{ingresos:[...(S.ingFijos||[]).map(r=>[r.c,r.v]),...(S.ingRec||[]).filter(r=>(r.desde||"2000-01")<=m&&(r.hasta==null||m<=r.hasta)).map(r=>[r.c+" (recurrente)",r.v]),...b.ingresos.map(r=>[r.c,r.v])],
          fijos:S.fijos.filter(r=>aplicaFijo(r,m)).map(r=>[r.c,r.v]),
          hormiga:b.hormiga.map(r=>[r.c+" ("+r.k+")",r.v]),
          cuotas:[...S.cuotasF.filter(r=>saldoIni(m,r)>0).map(r=>[r.e,pagoEf(m,r)]),...S.cuotasE.filter(r=>cuotaECobra(m,r)).map(r=>[r.c+" cuota",r.cu])],
          ahorro:b.ahorro.map(r=>[r.m,r.v])}});
+  const nxt=addM(m,1);
   const pagadas=[];
-  S.cuotasF.forEach(r=>{const pag=pagoEf(m,r);r.s=Math.max(0,r.s-pag);if(r.s<=0)pagadas.push(r.e);});
+  S.cuotasF.forEach(r=>{r.s=saldoIni(nxt,r);if(r.s<1){pagadas.push(r.e);r.s=0;}});
   S.cuotasF=S.cuotasF.filter(r=>r.s>0);
+  if(S.buckets[nxt]&&S.buckets[nxt].saldos) delete S.buckets[nxt].saldos;
   S.cuotasE.forEach(r=>{if(cuotaECobra(m,r))r.r-=1;});
   S.cuotasE=S.cuotasE.filter(r=>r.r>0);
   delete S.buckets[m];
@@ -895,6 +992,7 @@ async function syncPull(silent){
   paintSync();
 }
 function syncPushNow(){
+  if(typeof fetch==="undefined"){ syncMode="local"; paintSync(); return Promise.resolve(); }
   return fetch("api/data",{method:"PUT",cache:"no-store",headers:{"content-type":"application/json"},
     body:JSON.stringify({updatedAt:Date.now(),state:S})})
     .then(r=>{ if(!r.ok)throw 0; syncMode="cloud"; store.set("miplata.updated",String(Date.now())); })
@@ -912,7 +1010,6 @@ document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&!DIRTY.s
 paintSync();
 $("btnImport").onclick=()=>$("fileImport").click();
 $("fileImport").onchange=e=>{if(e.target.files[0])importar(e.target.files[0]);e.target.value="";};
-$("ingFijo").addEventListener("change",e=>{S.ingFijo=+e.target.value||0;markDirty("ing");renderAll(false);});
 (function(){const dl=document.createElement("datalist");dl.id="dlFij";
   dl.innerHTML="";document.body.appendChild(dl);})();
 renderAll(true);
