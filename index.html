@@ -186,7 +186,7 @@ tr.carryrow td{background:var(--carrybg)}
         <div class="body">
           <div class="mini-lbl" style="margin:2px 0 4px"><b>Cuota fija mensual</b> — muévete con ◀ ▶ y escribe en <b>“pago de este mes”</b> lo que te predijo el banco para CADA mes; queda guardado mes a mes:</div>
           <div class="scroll"><table id="tblCuoF">
-            <thead><tr><th>Entidad / crédito</th><th style="width:76px">Cuota base</th><th style="width:88px">Pago mínimo</th><th style="width:96px">Pago calculado</th><th style="width:96px">💵 Vas a cancelar</th><th style="width:98px">Saldo según banco</th><th style="width:98px">Saldo recalculado</th><th style="width:30px"></th></tr></thead>
+            <thead><tr><th>Entidad / crédito</th><th style="width:74px">Cuota base</th><th style="width:86px">Pago mínimo (banco)</th><th style="width:94px">Pago calculado (mín + cargos tarjeta)</th><th style="width:96px">💵 Vas a cancelar (el que manda)</th><th style="width:96px">Saldo según banco</th><th style="width:96px">Saldo recalculado</th><th style="width:30px"></th></tr></thead>
             <tbody></tbody><tfoot><tr><td colspan="2">Total cuotas que pagas este mes</td><td class="num" id="totCuoF"></td><td class="num" id="totSaldo"></td><td></td></tr></tfoot>
           </table></div>
           <div class="rowAdd"><input id="cuof_e" placeholder="Entidad (ej. Nequi)"><input type="number" id="cuof_c" placeholder="Cuota/mes"><input type="number" id="cuof_s" placeholder="Saldo"><button class="mini primary" onclick="addCuoF()">+ Agregar</button></div>
@@ -469,7 +469,12 @@ function totals(m,carry){
   const deuda=deudaProy(m);
   const comp=ing>0?(fij-sum(S.fijos,x=>aplicaFijo(x,m)&&esTarjeta(x.med)?x.v:0)+cuo)/ing:0;
   const fijCat={}; (S.fijos||[]).forEach(x=>{if(!aplicaFijo(x,m))return;const k=x.cat||"Otros"; fijCat[k]=(fijCat[k]||0)+(+x.v||0);});
-  return {ing,fij,fijCat,hor,cuo,aho,gas,lib,deuda,comp,carry,consumo,cardC:cardNow,cardPrev:cardCub,principal:Math.max(0,cuo-cardCub)};
+  const fijCard=sum(S.fijos,x=>aplicaFijo(x,m)&&esTarjeta(x.med)?x.v:0);
+  const horCard=sum(b.hormiga,x=>esTarjeta(x.m)?x.v:0);
+  const cardPago=sum(S.cuotasF,r=>esCreditoTarjeta(r)&&saldoIni(m,r)>0?pagoEf(m,r):0);
+  const otrosCuo=cuo-cardPago;
+  const principalCard=cardPago-cardCub;
+  return {ing,fij,fijCat,hor,cuo,aho,gas,lib,deuda,comp,carry,consumo,cardC:cardNow,cardPrev:cardCub,principal:Math.max(0,cuo-cardCub),fijCard,horCard,cardPago,otrosCuo,principalCard};
 }
 
 const $=id=>document.getElementById(id);
@@ -599,11 +604,12 @@ function renderCuo(){
   const tb=$("tblCuoF").tBodies[0];
   const vivas=S.cuotasF.filter(r=>saldoIni(S.mes,r)>0);
   tb.innerHTML=vivas.map(r=>{const pe=pagoEf(S.mes,r),cap=pe<pagoPlaneado(S.mes,r);
+    const pgRaw=B(S.mes).pagos[r.id]; const px=B(S.mes).pagox||{}; const ov=px[r.id]!=null&&px[r.id]!=="";
     return `<tr class="del"><td><input class="inline" value="${esc(r.e)}" data-k="e" data-id="${r.id}"></td>
     <td><input type="number" class="inline" value="${r.c}" data-k="c" data-id="${r.id}" title="Cuota base de referencia"></td>
-    <td><input type="number" class="inline" value="${pagoMin(S.mes,r)}" data-k="p" data-id="${r.id}" title="Porción de financiamiento que pide el banco en ${mesLabel(S.mes)} (edítala; para tarjeta se le suman los cargos del mes anterior)" style="border-color:var(--coral)"></td>
-    <td class="num" title="Referencia: pago mínimo + cargos con tarjeta del mes anterior" style="color:var(--soft)">${F(pagoCalc(S.mes,r))}</td>
-    <td><input type="number" class="inline" value="${Math.round(pagoAplic(S.mes,r))}" data-k="px" data-id="${r.id}" title="Lo que VAS a cancelar en ${mesLabel(S.mes)}: por defecto el pago calculado; escríbelo si vas a abonar otro valor. Este es el que se descuenta de tus ingresos y baja la deuda" style="border-color:var(--coral);font-weight:700"></td>
+    <td><input type="number" class="inline" value="${pgRaw!=null&&pgRaw!==""?pgRaw:""}" placeholder="${r.c}" data-k="p" data-id="${r.id}" title="Pago mínimo que te anuncia el banco al inicio del mes. Si lo dejas vacío, usa la cuota base (${F(r.c)})"></td>
+    <td class="num" title="Precálculo si te aguantas al mínimo: pago mínimo + cargos con tarjeta del mes anterior" style="color:var(--soft)">${F(pagoCalc(S.mes,r))}</td>
+    <td><input type="number" class="inline" value="${Math.round(pagoAplic(S.mes,r))}" data-k="px" data-id="${r.id}" title="${ov?"Valor manual: este es el que se descuenta de tus ingresos y baja la deuda":"Automático (= pago calculado). Escríbelo encima si vas a cancelar otro valor: este es el que manda"}" style="border-color:${ov?"var(--gold)":"var(--coral)"};font-weight:800${ov?";background:var(--planbg)":""}"></td>
     <td><input type="number" class="inline" value="${(()=>{const a=anchor(S.mes,r);return Math.round(a!=null?a:saldoCalc(S.mes,r));})()}" data-k="sal" data-id="${r.id}" title="Escribe aquí lo que te dice el banco que debes en ${mesLabel(S.mes)}: la tasa de interés se deduce sola comparando con el mes anterior"></td>
     <td class="num" title="Cálculo de la app: saldo anterior + cargos con tarjeta − pago mínimo + interés implícito. Si difiere del banco, al escribir el dato real la tasa se ajusta sola" style="color:var(--soft)">${F(Math.round(saldoCalc(S.mes,r)))}</td>
     <td><button class="mini danger" title="Eliminar" onclick="delRow('cuotasF','${r.id}')">✕</button></td></tr>`;}).join("")
@@ -630,7 +636,7 @@ function renderCuo(){
   tb.querySelectorAll('[data-k="p"]').forEach(el=>{
     el.addEventListener("change",()=>{
       const r=S.cuotasF.find(x=>x.id===el.dataset.id);if(!r)return;
-      B(S.mes).pagos[r.id]=+el.value||0;
+      if(el.value==="") delete B(S.mes).pagos[r.id]; else B(S.mes).pagos[r.id]=+el.value||0;
       markDirty("cuo");renderAll(true);
     });
   });
@@ -650,8 +656,8 @@ function renderCuo(){
 function paintNoteCuo(){
   const t=totals();
   $("noteCuo").innerHTML = S.mes>S.abierto
-    ? "🔭 Mes futuro: el <b>💵 pago calculado</b> ya suma los cargos con tarjeta del mes anterior; el <b>saldo</b> es proyección. Cuando el banco confirme, escribe su saldo y su pago mínimo reales y todo se reajusta."
-    : "En <b>💵 Vas a cancelar</b> eliges cuánto abonas ese mes (por defecto el <b>pago calculado</b> = mínimo + cargos con tarjeta del mes anterior, "+F(t.cardPrev)+"): ese valor es el que se descuenta de tus ingresos y baja la deuda. Compara <b>banco vs recalculado</b>: si difieren, escribe el del banco y la tasa implícita se ajusta sola.";
+    ? "🔭 Mes futuro: la cadena es <b>cuota base → pago mínimo (banco) → pago calculado (mín + cargos tarjeta del mes anterior) → 💵 vas a cancelar</b> (el que manda, en dorado si lo escribes a mano). El saldo es proyección hasta que escribas el del banco."
+    : "La cadena: <b>cuota base</b> (tu referencia, editable) → <b>pago mínimo</b> (el que anuncia el banco; vacío = usa la base) → <b>pago calculado</b> (mínimo + cargos con tarjeta del mes anterior, "+F(t.cardPrev)+": lo que pagarías si te aguantas) → <b>💵 vas a cancelar</b> (el que manda: se descuenta de tus ingresos y baja la deuda; en dorado si lo escribes a mano) → <b>saldos</b>: el del banco (escríbelo) vs el recalculado por la app con intereses implícitos.";
 }
 function renderAho(){
   const arr=B(S.mes).ahorro, tb=$("tblAho").tBodies[0];
@@ -898,12 +904,13 @@ function renderTab(){
   hi+=fila("=","Total ingresos",t.ing,"var(--ok)",true);
   $("tabIng").innerHTML=hi;
   let hg="";
-  Object.keys(t.fijCat).forEach(k=>hg+=fila("−",k,t.fijCat[k],"var(--coral)"));
-  hg+=fila("−","Hormiga / variables",t.hor,"var(--coral)");
-  hg+=fila("−","Cargos tarjeta del mes anterior",t.cardPrev,"var(--coral)");
-  hg+=fila("−","Abono a capital de deuda",t.principal,"var(--coral)");
-  hg+=fila("−","Ahorro / metas",t.aho,"var(--plum)");
-  hg+=fila("=","Sale del bolsillo",t.gas,"var(--coral)",true);
+  hg+=fila("−","Fijos pagados con efectivo/débito",t.fij-t.fijCard,"var(--coral)");
+  hg+=fila("−","Hormiga con efectivo/débito",t.hor-t.horCard,"var(--coral)");
+  hg+=fila("−","Pago tarjeta: cargos del mes anterior",t.cardPrev,"var(--coral)");
+  hg+=fila("−","Pago tarjeta: capital e intereses",t.principalCard,"var(--coral)");
+  hg+=fila("−","Otras cuotas (Nequi, Lulo, etc.)",t.otrosCuo,"var(--coral)");
+  hg+=fila("=","SALE DEL BOLSILLO",t.gas,"var(--coral)",true);
+  hg+=`<div class="note">Aquí sí está tu pago de tarjeta completo: <b>cargos del mes anterior</b> ("+F(t.cardPrev)+") + <b>capital e intereses</b> ("+F(t.principalCard)+") = "+F(t.cardPago)+". Los cargos con tarjeta de ESTE mes ("+F(t.cardC)+") no salen hoy de tu bolsillo: se cobran el mes siguiente. Consumo devengado del mes (para análisis y la dona): "+F(t.consumo)+".</div>`;
   $("tabGas").innerHTML=hg;
   const pm=addM(S.mes,-1);
   let prev=null;
