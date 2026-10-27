@@ -153,11 +153,12 @@ tr.carryrow td{background:var(--carrybg)}
       <div class="card"><h3 class="h-ing">① Ingresos <span class="sub" id="subIng"></span><button class="mini save" id="savIng" onclick="saveSec('ing')">💾 Guardar</button></h3>
         <div class="body">
           <div class="rowAdd" style="margin:0 0 8px"><input id="ingf_c" placeholder="Ingreso fijo (salario, arriendo, pensión…)"><input type="number" id="ingf_v" placeholder="Valor mensual"><button class="mini primary" onclick="addIngF()">+ Ingreso fijo</button></div>
+          <div style="margin:0 0 6px"><button class="mini" id="btnInact" onclick="toggleInact()" title="Mostrar/ocultar recurrentes que NO se pagan este mes">👁 Inactivos este mes (0)</button></div>
           <div class="scroll"><table id="tblIng">
             <thead><tr><th style="width:92px">Fecha (auto)</th><th>Concepto</th><th style="width:110px">Valor</th><th style="width:34px"></th></tr></thead>
             <tbody></tbody><tfoot><tr><td colspan="2">Total ingresos del mes</td><td class="num" id="totIng"></td><td></td></tr></tfoot>
           </table></div>
-          <div class="rowAdd"><input id="ing_c" placeholder="Concepto del extra"><input type="number" id="ing_v" placeholder="Valor"><button class="mini" id="ingRecToggle" onclick="toggleIngForm()" title="Activa para que este extra se repita solo cada mes">🔁 Recurrente</button><button class="mini primary" onclick="addIng()">+ Agregar</button></div>
+          <div class="rowAdd"><input id="ing_c" placeholder="Concepto del extra"><input type="number" id="ing_v" placeholder="Valor"><select id="ingr_f" title="Frecuencia si es recurrente"><option>Mensual</option><option>Semestral</option><option>Anual</option></select><button class="mini" id="ingRecToggle" onclick="toggleIngForm()" title="Activa para que este extra se repita solo">🔁 Recurrente</button><button class="mini primary" onclick="addIng()">+ Agregar</button></div>
           <div class="note">🔁 Los <b>recurrentes</b> se incluyen una sola vez y se repiten solos cada mes hasta que pulses su botón para detenerlos (dejan de contar desde el mes que miras, sin borrar el historial). Los <b>puntuales</b> viven solo en el mes donde los escribes.</div>
           <div class="note">🔁 Si en un mes te queda dinero libre, pasa <b>solo</b> como ingreso del mes siguiente (y de ahí en cadena). Cambia cualquier gasto, cuota o ahorro de un mes y todos los sobrantes futuros se <b>recalculan al instante</b>.</div>
         </div>
@@ -186,7 +187,7 @@ tr.carryrow td{background:var(--carrybg)}
         <div class="body">
           <div class="mini-lbl" style="margin:2px 0 4px"><b>Cuota fija mensual</b> — muévete con ◀ ▶ y escribe en <b>“pago de este mes”</b> lo que te predijo el banco para CADA mes; queda guardado mes a mes:</div>
           <div class="scroll"><table id="tblCuoF">
-            <thead><tr><th>Entidad / crédito</th><th style="width:92px">Pago mínimo</th><th style="width:96px">Pago calculado</th><th style="width:100px">💵 Pago Concreto</th><th style="width:100px">Saldo según banco</th><th style="width:100px">Saldo recalculado</th><th style="width:30px"></th></tr></thead>
+            <thead><tr><th>Entidad / crédito</th><th style="width:92px">Pago mínimo</th><th style="width:96px">Pago calculado</th><th style="width:100px">💵 Vas a cancelar (el que manda)</th><th style="width:100px">Saldo según banco</th><th style="width:100px">Saldo recalculado</th><th style="width:30px"></th></tr></thead>
             <tbody></tbody><tfoot><tr><td colspan="2">Total cuotas que pagas este mes</td><td class="num" id="totCuoF"></td><td class="num" id="totSaldo"></td><td></td></tr></tfoot>
           </table></div>
           <div class="rowAdd"><input id="cuof_e" placeholder="Entidad (ej. Nequi)"><input type="number" id="cuof_c" placeholder="Pago mínimo"><input type="number" id="cuof_s" placeholder="Saldo"><button class="mini primary" onclick="addCuoF()">+ Agregar</button></div>
@@ -241,7 +242,7 @@ tr.carryrow td{background:var(--carrybg)}
           <div class="charts">
             <div class="chartBox"><div class="tt">Ingresos vs gastos (real)</div><div id="chBars"></div>
               <div class="legend"><span><i style="background:var(--teal)"></i>Ingresos</span><span><i style="background:var(--coral)"></i>Gastos</span></div></div>
-            <div class="chartBox"><div class="tt">🔭 Futuro planeado (3 meses)</div><div id="chFut"></div>
+            <div class="chartBox"><div class="tt">🔭 Futuro planeado (6 meses)</div><div id="chFut"></div>
               <div class="legend"><span><i style="background:var(--teal)"></i>Ingresos</span><span><i style="background:var(--gold)"></i>Gastos planeados</span></div></div>
             <div class="chartBox"><div class="tt">Ahorro acumulado</div><div id="chAhor"></div></div>
             <div class="chartBox"><div class="tt">¿En qué se va la plata este mes?</div><div id="chDonut"></div><div class="legend" id="legDonut"></div></div>
@@ -292,7 +293,7 @@ tr.carryrow td{background:var(--carrybg)}
     <div class="body"><ol>
       <li><b>Gastos fijos por categoría:</b> cada fijo lleva su categoría con color (Vivienda, Servicios, Mercado, Suscripciones, Transporte…), con subtotal por categoría y su rebanada en la dona. Arrastra con ⠿ para ordenar o suelta un ítem sobre el encabezado de otra categoría para moverlo allá. Netflix, Spotify y demás viven aquí como categoría “Suscripciones”.</li>
       <li><b>Escribe en el mes abierto</b> (pill verde “MES ABIERTO”): cada categoría tiene su cajita con scroll y sus listas. Edita con calma y pulsa el <b>💾 Guardar</b> del encabezado de esa categoría (se pone naranja con • si tienes cambios sin guardar).</li>
-      <li><b>Planea los meses que vienen:</b> con <b>▶</b> avanza a noviembre, diciembre… (pill dorada “PLAN”). Ahí escribes lo que el banco o la app te predice: en <b>Cuotas → “pago de este mes”</b> dejas la cuota que sabes que tendrás en ESE mes (queda guardada mes a mes), y también puedes dejar gastos u ahorros planeados. La gráfica <b>🔭 Futuro planeado</b> y la predicción lo usan para decirte desde hoy cómo vienen esos meses.</li>
+      <li><b>Planea los meses que vienen:</b> con <b>▶</b> avanza hasta <b>24 meses</b> (pill dorada “PLAN”). Ahí escribes lo que el banco o la app te predice: en <b>Cuotas → “pago de este mes”</b> dejas la cuota que sabes que tendrás en ESE mes (queda guardada mes a mes), y también puedes dejar gastos u ahorros planeados. La gráfica <b>🔭 Futuro planeado</b> y la predicción lo usan para decirte desde hoy cómo vienen esos meses.</li>
       <li><b>Cierra el mes</b> con 🔒: todo lo vivido pasa al <b>HISTORIAL</b>, la hoja queda limpia, los fijos/suscripciones/cuotas continúan y las fechas de cobro corren solas. El historial es editable: corrige cifras reales y guarda para que la predicción sea más acertada.</li>
       <li><b>Ciclo de tarjeta correcto:</b> los cargos con tarjeta del mes se facturan a fin de mes y <b>se cobran el mes siguiente</b>; el pago de este mes cubre los cargos del anterior y el resto abona a capital. Nada se duplica y la deuda no se infla con servicios que ya pagaste.</li>
       <li><b>Lo que pagas con tarjeta no se duplica:</b> marca en cada fijo con qué lo pagas (“Se paga con”): si es <b>Crédito</b>, el cargo cuenta una sola vez como gasto y dentro del pago de la tarjeta se separa <b>cargos del mes</b> vs <b>abono a capital</b>; la deuda solo se mueve con lo que dejas de pagar y sus intereses (que se deducen solos de tus saldos reales).</li>
@@ -337,7 +338,7 @@ let LISTAS={
   medios:["Efectivo o débito","Crédito"],
   ciclos:["Mensual","Trimestral","Semestral","Anual"],
 };
-const RESPALDO_BASE = {"abierto": "2026-10", "mes": "2026-10", "ingFijo": 2900000, "fijos": [{"id": "1s64ncp", "c": "Servicios Luz", "v": 150000, "cat": "Servicios", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "di52jw6", "c": "Servicio Agua", "v": 100000, "cat": "Servicios", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "vh6o36e", "c": "Plan celular", "v": 60000, "cat": "Servicios", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "2ugm9h6", "c": "Internet", "v": 90000, "cat": "Servicios", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "fpyc2k9", "c": "Netflix", "v": 31000, "cat": "Suscripciones", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "kusc3ip", "c": "Spotify", "v": 31000, "cat": "Suscripciones", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "manfmrh", "c": "Nube Ari", "v": 10000, "cat": "Suscripciones", "desde": "2000-01", "hasta": "2026-10"}, {"id": "vloel3c", "c": "Mercado", "v": 500000, "cat": "Mercado", "desde": "2000-01", "hasta": "2026-09"}, {"id": "1g23j7c", "c": "Almuerzos Ari FDS", "v": 80000, "cat": "Personales", "desde": "2000-01", "hasta": "2026-10"}, {"id": "9x47e3k", "c": "Almuerzo Semanal Ari", "v": 80000, "cat": "Personales", "desde": "2000-01", "hasta": "2026-09"}, {"id": "hudt5bm", "c": "Plan celular mamá", "v": 50000, "cat": "Servicios", "desde": "2026-10", "hasta": null, "med": "Crédito"}, {"id": "r54dtcv", "c": "Arriendo", "v": 800000, "cat": "Vivienda", "desde": "2027-01", "hasta": null}], "cuotasF": [{"id": "hrftwoo", "e": "Nequi", "c": 108000, "s": 1561354}, {"id": "e0v223s", "e": "Lulo", "c": 150000, "s": 4179666}, {"id": "zfajlka", "e": "Tarjeta NU (pago)", "c": 670000, "s": 8089005}, {"id": "4qk2z6e", "e": "Crédito celular", "c": 60000, "s": 339124}], "cuotasE": [], "metas": [{"id": "0ectgiq", "n": "Fondo emergencia", "o": 3000000, "a0": 0, "fin": null}, {"id": "5buxiu1", "n": "Computador", "o": 3500000, "a0": 0, "fin": null}, {"id": "vnontof", "n": "Electrodomesticos", "o": 3000000, "fin": null, "a0": 0}], "buckets": {"2026-10": {"ingresos": [], "hormiga": [{"id": "x719fg1", "f": "2026-10-29", "c": "Hotel capital cheer", "k": "Varios", "m": "Efectivo o débito", "v": 360000}, {"id": "w447g1t", "f": "2026-10-24", "c": "Apoyo", "k": "Farmacia", "m": "Efectivo o débito", "v": 13800}, {"id": "h0urc50", "f": "2026-10-24", "c": "Gaseosa", "k": "Antojos", "m": "Efectivo o débito", "v": 1750}, {"id": "5aw6na0", "f": "2026-10-24", "c": "Detalle", "k": "Varios", "m": "Efectivo o débito", "v": 31000}, {"id": "0ak22ka", "f": "2026-10-25", "c": "Comida", "k": "Cafetería", "m": "Efectivo o débito", "v": 10200}, {"id": "mndirq7", "f": "2026-10-25", "c": "te y milhoja", "k": "Cafetería", "m": "Efectivo o débito", "v": 17000}, {"id": "yfydlux", "f": "2026-10-26", "c": "abono mas para pista cheer", "k": "Matrícula/Educación", "m": "Efectivo o débito", "v": 4000}, {"id": "9bcusky", "f": "2026-10-27", "c": "Comida", "k": "Antojos", "m": "Efectivo o débito", "v": 22500}], "ahorro": [{"id": "d73urtr", "f": "2026-10-26", "m": "Electrodomesticos", "v": 450000}], "pagos": {"zfajlka": 1067489, "hrftwoo": 108000, "e0v223s": 150000, "4qk2z6e": 60000}, "saldos": {"zfajlka": 8176700}, "pagox": {"zfajlka": 1991489}}, "2026-11": {"ingresos": [], "hormiga": [], "ahorro": [{"id": "skjy482", "f": "2026-11-01", "m": "Electrodomesticos", "v": 500000}, {"id": "0llgce2", "f": "2026-11-01", "m": "Fondo emergencia", "v": 500000}], "pagos": {"4qk2z6e": 279124, "zfajlka": 670000}, "saldos": {"zfajlka": 6185134}}, "2026-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {"zfajlka": 98000}}, "2027-01": {"ingresos": [{"id": "z2yqggh", "f": "2026-10-23", "c": "Prima", "v": 2800000}], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-04": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-05": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-06": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-07": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-08": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-10": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-11": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-01": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-04": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-05": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-06": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-07": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-08": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-10": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-11": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-01": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-04": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-05": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-06": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-07": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-08": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-10": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-11": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2030-01": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2030-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2030-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2026-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}}, "historial": [], "LISTAS": {"catFijas": ["Vivienda", "Servicios", "Mercado", "Suscripciones", "Transporte", "Salud", "Mascotas", "Personales", "Otros"], "catHormiga": ["Cafetería", "Restaurantes", "Mercadito", "Transporte/Taxi", "Domicilios", "Antojos", "Farmacia", "Matrícula/Educación", "Varios"], "medios": ["Efectivo o débito", "Crédito"], "ciclos": ["Mensual", "Trimestral", "Semestral", "Anual"]}, "ingFijos": [{"id": "9o50lvp", "c": "Salario", "v": 2900000}], "ingRec": [{"id": "ofoinfl", "c": "Plan celular madre", "v": 50000, "desde": "2026-10", "hasta": null}]};
+const RESPALDO_BASE = {"abierto": "2026-10", "mes": "2026-10", "ingFijo": 2900000, "fijos": [{"id": "1s64ncp", "c": "Servicios Luz", "v": 150000, "cat": "Servicios", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "di52jw6", "c": "Servicio Agua", "v": 100000, "cat": "Servicios", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "vh6o36e", "c": "Plan celular", "v": 60000, "cat": "Servicios", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "2ugm9h6", "c": "Internet", "v": 90000, "cat": "Servicios", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "fpyc2k9", "c": "Netflix", "v": 31000, "cat": "Suscripciones", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "kusc3ip", "c": "Spotify", "v": 31000, "cat": "Suscripciones", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "manfmrh", "c": "Nube Ari", "v": 10000, "cat": "Suscripciones", "desde": "2000-01", "hasta": "2026-10"}, {"id": "vloel3c", "c": "Mercado", "v": 500000, "cat": "Mercado", "desde": "2000-01", "hasta": "2026-09"}, {"id": "1g23j7c", "c": "Almuerzos Ari FDS", "v": 80000, "cat": "Personales", "desde": "2000-01", "hasta": "2026-10"}, {"id": "9x47e3k", "c": "Almuerzo Semanal Ari", "v": 80000, "cat": "Personales", "desde": "2000-01", "hasta": "2026-09"}, {"id": "hudt5bm", "c": "Plan celular mamá", "v": 50000, "cat": "Servicios", "desde": "2026-10", "hasta": null, "med": "Crédito"}, {"id": "r54dtcv", "c": "Arriendo", "v": 800000, "cat": "Vivienda", "desde": "2027-01", "hasta": null}], "cuotasF": [{"id": "hrftwoo", "e": "Nequi", "c": 108000, "s": 1561354}, {"id": "e0v223s", "e": "Lulo", "c": 150000, "s": 4179666}, {"id": "zfajlka", "e": "Tarjeta NU (pago)", "c": 670000, "s": 8089005}, {"id": "4qk2z6e", "e": "Crédito celular", "c": 60000, "s": 339124}], "cuotasE": [], "metas": [{"id": "0ectgiq", "n": "Fondo emergencia", "o": 3000000, "a0": 0, "fin": null}, {"id": "5buxiu1", "n": "Computador", "o": 3500000, "a0": 0, "fin": null}, {"id": "vnontof", "n": "Electrodomesticos", "o": 3000000, "fin": null, "a0": 0}], "buckets": {"2026-10": {"ingresos": [], "hormiga": [{"id": "x719fg1", "f": "2026-10-29", "c": "Hotel capital cheer", "k": "Varios", "m": "Efectivo o débito", "v": 360000}, {"id": "w447g1t", "f": "2026-10-24", "c": "Apoyo", "k": "Farmacia", "m": "Efectivo o débito", "v": 13800}, {"id": "h0urc50", "f": "2026-10-24", "c": "Gaseosa", "k": "Antojos", "m": "Efectivo o débito", "v": 1750}, {"id": "5aw6na0", "f": "2026-10-24", "c": "Detalle", "k": "Varios", "m": "Efectivo o débito", "v": 31000}, {"id": "0ak22ka", "f": "2026-10-25", "c": "Comida", "k": "Cafetería", "m": "Efectivo o débito", "v": 10200}, {"id": "mndirq7", "f": "2026-10-25", "c": "te y milhoja", "k": "Cafetería", "m": "Efectivo o débito", "v": 17000}, {"id": "yfydlux", "f": "2026-10-26", "c": "abono mas para pista cheer", "k": "Matrícula/Educación", "m": "Efectivo o débito", "v": 4000}, {"id": "9bcusky", "f": "2026-10-27", "c": "Comida", "k": "Antojos", "m": "Efectivo o débito", "v": 22500}], "ahorro": [{"id": "d73urtr", "f": "2026-10-26", "m": "Electrodomesticos", "v": 450000}], "pagos": {"zfajlka": 1067489, "hrftwoo": 108000, "e0v223s": 150000, "4qk2z6e": 60000}, "saldos": {"zfajlka": 8176700}, "pagox": {"zfajlka": 1991489}}, "2026-11": {"ingresos": [], "hormiga": [], "ahorro": [{"id": "skjy482", "f": "2026-11-01", "m": "Electrodomesticos", "v": 500000}, {"id": "0llgce2", "f": "2026-11-01", "m": "Fondo emergencia", "v": 500000}], "pagos": {"4qk2z6e": 279124, "zfajlka": 670000}, "saldos": {"zfajlka": 6185134}}, "2026-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {"zfajlka": 98000}}, "2027-01": {"ingresos": [{"id": "z2yqggh", "f": "2026-10-23", "c": "Prima", "v": 2800000}], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-04": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-05": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-06": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-07": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-08": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-10": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-11": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-01": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-04": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-05": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-06": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-07": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-08": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-10": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-11": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-01": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-04": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-05": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-06": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-07": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-08": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-10": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-11": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2030-01": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2030-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2030-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2026-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}}, "historial": [], "LISTAS": {"catFijas": ["Vivienda", "Servicios", "Mercado", "Suscripciones", "Transporte", "Salud", "Mascotas", "Personales", "Otros"], "catHormiga": ["Cafetería", "Restaurantes", "Mercadito", "Transporte/Taxi", "Domicilios", "Antojos", "Farmacia", "Matrícula/Educación", "Varios"], "medios": ["Efectivo o débito", "Crédito"], "ciclos": ["Mensual", "Trimestral", "Semestral", "Anual"]}, "ingFijos": [{"id": "9o50lvp", "c": "Salario", "v": 2900000}], "ingRec": [{"id": "ofoinfl", "c": "Plan celular madre", "v": 50000, "desde": "2026-10", "hasta": null}, {"id": "prima06", "c": "Prima (mitad y fin de año)", "v": 1000200, "desde": "2026-06", "hasta": null, "freq": "Semestral"}]};
 function DEFAULT(){ return mig(JSON.parse(JSON.stringify(RESPALDO_BASE))); }
 let S=load();
 function load(){
@@ -372,6 +373,7 @@ function mig(o){
   })();
   if(!o.ingFijos){ o.ingFijos=[{id:uid(),c:"Salario",v:+o.ingFijo||0}]; }
   if(!o.ingRec) o.ingRec=[];
+  (o.ingRec||[]).forEach(r=>{ r.freq=r.freq||"Mensual"; });
   const MAPMED={"Nequi":"Efectivo o débito","Daviplata":"Efectivo o débito","Efectivo":"Efectivo o débito","Otro":"Efectivo o débito","Tarjeta débito":"Efectivo o débito","Tarjeta NU":"Crédito","Efectivo/Nequi":"Efectivo o débito"};
   const normMed=x=>MAPMED[x]||(/Tarjeta|Crédito/i.test(x||"")?"Crédito":x);
   (o.fijos||[]).forEach(r=>{ if(r.med) r.med=normMed(r.med); });
@@ -445,7 +447,14 @@ function cardCharges(m){
   return sum(S.fijos||[], r=> aplicaFijo(r,m)&&esTarjeta(r.med)? r.v:0)
        + sum(B(m).hormiga, x=> esTarjeta(x.m)? x.v:0);
 }
-function ingRecur(m){ return sum(S.ingRec||[], r=> (r.desde||"2000-01")<=m && (r.hasta==null || m<=r.hasta) ? r.v : 0); }
+function aplicaRec(m,r){
+  const d=r.desde||"2000-01";
+  if(m<d) return false;
+  if(r.hasta!=null && m>r.hasta) return false;
+  const dd=diffMeses(d,m), f=r.freq||"Mensual";
+  return f==="Mensual"? true : f==="Semestral"? dd%6===0 : dd%12===0;
+}
+function ingRecur(m){ return sum(S.ingRec||[], r=> aplicaRec(m,r)? r.v : 0); }
 function carry0(){
   if(!S.historial.length)return 0;
   const h=S.historial[S.historial.length-1];
@@ -505,7 +514,7 @@ function renderMesLabel(){
   if(S.mes===S.abierto){pill.textContent="MES ABIERTO";pill.className="pillM abierto";}
   else{pill.textContent="PLAN FUTURO";pill.className="pillM futuro";}
   $("prevM").disabled = S.mes<=S.abierto;
-  $("nextM").disabled = S.mes>=addM(S.abierto,11);
+  $("nextM").disabled = S.mes>=addM(S.abierto,23);
   const pb=$("planBanner");
   if(S.mes>S.abierto){pb.hidden=false;pb.innerHTML="🔭 Estás <b>planeando "+mesLabel(S.mes)+"</b>: lo que escribas aquí es un plan (cuotas que predice el banco, gastos que ya sabes, ahorros que quieres). No toca tu mes abierto; se usará en las gráficas de futuro y la predicción, y se volverá real cuando vivas y cierres ese mes.";}
   else pb.hidden=true;
@@ -533,18 +542,23 @@ function renderIng(){
     <td><input class="inline" value="${esc(r.c)}" data-k="c" data-id="${r.id}"></td>
     <td><input type="number" class="inline" value="${r.v}" data-k="v" data-id="${r.id}"></td>
     <td><button class="mini danger" onclick="delRow('ingFijos','${r.id}')">✕</button></td></tr>`).join("");
-  const recRows=(S.ingRec||[]).map(r=>{const on=(r.desde||"2000-01")<=S.mes&&(r.hasta==null||S.mes<=r.hasta);
-    return `<tr class="del" style="${on?"background:var(--okbg)":"opacity:.55"}"><td><span class="pill" title="Ingreso extra que se repite solo cada mes">🔁</span></td>
+  const recRow=(r,on)=>{const pil=r.freq==="Semestral"?"🔁6m":r.freq==="Anual"?"🔁12m":"🔁";
+    return `<tr class="del" style="${on?"background:var(--okbg)":"opacity:.55"}"><td><span class="pill" title="Recurrente ${r.freq||"Mensual"}${on?" (se paga este mes)":" (no se paga este mes)"}">${pil}</span></td>
     <td><input class="inline" value="${esc(r.c)}" data-k="c" data-id="${r.id}"></td>
     <td><input type="number" class="inline" value="${r.v}" data-k="v" data-id="${r.id}"></td>
-    <td style="white-space:nowrap"><button class="mini ${on?"":"primary"}" title="${on?"Dejar de repetirlo desde este mes":"Volver a repetirlo desde este mes"}" onclick="toggleIngRec('${r.id}')">${on?"🔁 Sí":"⏸ No"}</button> <button class="mini danger" onclick="delRow('ingRec','${r.id}')">✕</button></td></tr>`;}).join("");
+    <td style="white-space:nowrap"><button class="mini ${on?"":"primary"}" title="${on?"Dejar de repetirlo desde este mes":"Volver a repetirlo desde este mes"}" onclick="toggleIngRec('${r.id}')">${on?"🔁 Sí":"⏸ No"}</button> <button class="mini danger" onclick="delRow('ingRec','${r.id}')">✕</button></td></tr>`;};
+  const recAct=(S.ingRec||[]).filter(r=>aplicaRec(S.mes,r)).map(r=>recRow(r,true)).join("");
+  const recInact=(S.ingRec||[]).filter(r=>!aplicaRec(S.mes,r));
+  const recInactRows=showInact&&recInact.length? `<tr><td colspan="4" class="mini-lbl" style="padding-top:8px">No se pagan en ${mesLabel(S.mes)} (ocultos por defecto):</td></tr>`+recInact.map(r=>recRow(r,false)).join("") : "";
   const carry=totals().carry;
   const carryRow=`<tr class="carryrow"><td colspan="2" class="mini-lbl" title="Automático: lo que quedó libre el mes anterior (o el último cerrado)">🔁 Sobrante del mes anterior (automático)</td><td class="num" style="color:var(--teal)">${carry>0?FM(carry):"—"}</td><td></td></tr>`;
-  tb.innerHTML=fijosRows+recRows+carryRow+arr.map(r=>`<tr class="del"><td><span class="mini-lbl" title="Fecha automática">${(r.f||"").slice(8,10)}/${(r.f||"").slice(5,7)}</span></td>
+  tb.innerHTML=fijosRows+recAct+carryRow+arr.map(r=>`<tr class="del"><td><span class="mini-lbl" title="Fecha automática">${(r.f||"").slice(8,10)}/${(r.f||"").slice(5,7)}</span></td>
     <td><input class="inline" value="${esc(r.c)}" data-k="c" data-id="${r.id}"></td>
     <td><input type="number" class="inline" value="${r.v}" data-k="v" data-id="${r.id}"></td>
     <td><button class="mini danger" onclick="delRow('ingresos','${r.id}')">✕</button></td></tr>`).join("");
-  bindInputs(tb,"ingresos");
+  tb.innerHTML+=recInactRows;
+  bindInputs(tb,"ingresos"); bindInputs(tb,"ingRec");
+  $("btnInact").textContent="👁 Inactivos este mes ("+recInact.length+")"+(showInact?" · ocultar":"");
   $("totIng").textContent=F(totals().ing);$("subIng").textContent=F(totals().ing);
 }
 const CATCOLORS=["#3a6ea5","#0e7c66","#1d9a6c","#c2497d","#e08a3c","#d64533","#8a6414","#7d5ba6","#6b7a89"];
@@ -717,14 +731,16 @@ function delRow(coll,id){
   const i=arr.findIndex(x=>x.id===id);if(i<0)return;
   arr.splice(i,1);markDirty(SECMAP[coll]);renderAll(true);
 }
-let ingFormRec=false;
+let ingFormRec=false, showInact=false;
+function toggleInact(){ showInact=!showInact; renderAll(true); }
 function toggleIngForm(){ ingFormRec=!ingFormRec; const b=$("ingRecToggle");
   b.classList.toggle("primary",ingFormRec); b.textContent=ingFormRec?"🔁 Recurrente ✓":"🔁 Recurrente";
   b.title=ingFormRec?"Se agregará como ingreso que se repite cada mes":"Se agregará como extra de un solo mes"; }
 function addIngRec(){const v=+$("ing_v").value,c=$("ing_c").value;if(!c||!v)return flash("Concepto y valor");
-  S.ingRec.push({id:uid(),c,v,desde:S.mes,hasta:null});
+  const f=$("ingr_f").value||"Mensual";
+  S.ingRec.push({id:uid(),c,v,desde:S.mes,hasta:null,freq:f});
   $("ing_c").value="";$("ing_v").value="";markDirty("ing");renderAll(true);
-  flash("🔁 "+c+" se repetirá cada mes desde "+mesLabel(S.mes)+".");}
+  flash("🔁 "+c+" se repetirá "+(f==="Mensual"?"cada mes":f==="Semestral"?"cada 6 meses":"cada año")+" desde "+mesLabel(S.mes)+".");}
 function toggleIngRec(id){const r=(S.ingRec||[]).find(x=>x.id===id);if(!r)return;
   const on=(r.desde||"2000-01")<=S.mes&&(r.hasta==null||S.mes<=r.hasta);
   if(on){ r.hasta=addM(S.mes,-1); flash("⏸ "+r.c+" deja de repetirse desde "+mesLabel(S.mes)+". Antes sigue intacto."); }
@@ -845,7 +861,7 @@ function renderDash(){
   $("sema").innerHTML=`<div class="big">${titulo}</div>${msgs.length?`<ul>${msgs.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>`:""}`;
   const ser=serieReal(),lb=ser.map(s=>mesCorto(s.mes));
   bars($("chBars"),lb,ser.map(s=>s.ing),ser.map(s=>s.gas));
-  const fut=[0,1,2].map(k=>addM(S.abierto,k)),ft=totals(fut[0]),f=[];
+  const fut=[0,1,2,3,4,5].map(k=>addM(S.abierto,k)),ft=totals(fut[0]),f=[];
   fut.forEach(m=>{const tt=totals(m);f.push(tt);});
   bars($("chFut"),fut.map(mesCorto),f.map(x=>x.ing),f.map(x=>x.gas),"var(--gold)");
   let acc=sum(S.metas,m=>m.a)-totals(S.abierto).aho;const accs=ser.map(s=>{acc+=s.aho;return acc;});
@@ -854,7 +870,7 @@ function renderDash(){
     .concat([{n:"Hormiga",v:t.hor,c:"var(--gold)"},{n:"Abono a deuda",v:t.principal,c:"var(--coral)"},{n:"Ahorro",v:t.aho,c:"var(--plum)"}])
     .filter(p=>p.v>0);
   donut($("chDonut"),$("legDonut"),donutParts,privOn());
-  const futD=[1,2,3].map(k=>addM(S.abierto,k));
+  const futD=[1,2,3,4,5,6].map(k=>addM(S.abierto,k));
   line($("chDeuda"),ser.map(s=>mesCorto(s.mes)).concat(futD.map(mesCorto)),ser.map(s=>s.deuda).concat(futD.map(m=>deudaProy(m))),"var(--coral)",true);
   if(S.historial.length){
     line($("chBal2"),S.historial.slice(-7).map(h=>mesCorto(h.mes)),S.historial.slice(-7).map(h=>h.ing-(h.fij+(h.sub||0)+h.hor+h.cuo)-h.aho),"var(--teal)",true);
@@ -901,7 +917,7 @@ function renderTab(){
   $("tabCalc").innerHTML=h;
   let hi="";
   (S.ingFijos||[]).forEach(r=>hi+=fila("","+ "+r.c,r.v,"var(--ok)"));
-  (S.ingRec||[]).filter(r=>(r.desde||"2000-01")<=S.mes&&(r.hasta==null||S.mes<=r.hasta)).forEach(r=>hi+=fila("","🔁 "+r.c,r.v,"var(--ok)"));
+  (S.ingRec||[]).filter(r=>aplicaRec(S.mes,r)).forEach(r=>hi+=fila("",(r.freq==="Semestral"?"🔁6m ":r.freq==="Anual"?"🔁12m ":"🔁 ")+r.c,r.v,"var(--ok)"));
   B(S.mes).ingresos.forEach(r=>hi+=fila("","+ "+r.c,r.v,"var(--ok)"));
   if(t.carry>0)hi+=fila("","🔁 Sobrante anterior",t.carry,"var(--ok)");
   hi+=fila("=","Total ingresos",t.ing,"var(--ok)",true);
@@ -1041,7 +1057,7 @@ function tab(v){["Mes","Hist","Tab","Ayuda"].forEach(x=>$("tab"+x).classList.rem
   $("tab"+v).classList.add("on");$("view"+v).classList.add("on");}
 $("tabMes").onclick=()=>tab("Mes");$("tabHist").onclick=()=>tab("Hist");$("tabTab").onclick=()=>tab("Tab");$("tabAyuda").onclick=()=>tab("Ayuda");
 $("prevM").onclick=()=>{if(S.mes>S.abierto){S.mes=addM(S.mes,-1);renderAll(true);}};
-$("nextM").onclick=()=>{if(S.mes<addM(S.abierto,11)){S.mes=addM(S.mes,1);renderAll(true);}};
+$("nextM").onclick=()=>{if(S.mes<addM(S.abierto,23)){S.mes=addM(S.mes,1);renderAll(true);}};
 $("btnCerrar").onclick=cerrarMes;
 $("btnExport").onclick=exportar;
 /* ---- sincronizacion entre dispositivos (API /api/data, p.ej. Vercel + KV) ---- */
