@@ -17,28 +17,31 @@
   --r:14px; --sh:0 2px 10px rgba(30,45,60,.08);
 }
 [data-theme="dark"]{
-  --bg:#0a0a0d; --card:#14141a; --ink:#efe7d2; --soft:#a49b8a;
-  --teal:#d4af37; --teal-d:#f0c75e; --gold:#f0c75e; --coral:#ff5c5c;
-  --blue:#8ab4f8; --plum:#c9a2e8; --pink:#e895c8; --line:#2a2a33; --ok:#d4af37; --warn:#ffb224; --bad:#ff5c5c;
-  --kpi:#191920; --head:#20202a; --btn:#22222b; --field:#191920; --hover:#23232d;
-  --line2:#202028; --savebg:#2b2410; --savefg:#f0c75e; --danbg:#2b1516; --danfg:#ff8080;
-  --planbg:#241d0e; --planbd:#57451a; --plantx:#f0c75e; --carrybg:#1c2013; --okbg:#26200e;
-  --brand:#f0c75e; --flashbg:#241d0e; --flashfg:#f5e9c8; --thumb:#3c3c48;
-  --sh:0 4px 18px rgba(0,0,0,.6);
+  /* paleta: #0A0A0C negro · #1E1F25 tarjeta · #3B3F4A gris/bordes · #FFB000 ámbar · #F2F5F8 texto */
+  --bg:#0A0A0C; --card:#1E1F25; --ink:#F2F5F8; --soft:#8f96a3;
+  --teal:#FFB000; --teal-d:#FFB000; --gold:#FFB000; --coral:#FF6B6B;
+  --blue:#8f96a3; --plum:#F2F5F8; --pink:#FFB000; --line:#3B3F4A; --ok:#FFB000; --warn:#FFD34D; --bad:#FF6B6B;
+  --kpi:#24262e; --head:#2a2d35; --btn:#2a2d35; --field:#24262e; --hover:#2e3138;
+  --line2:#2a2d35; --savebg:#332b12; --savefg:#FFB000; --danbg:#33201f; --danfg:#FF8A8A;
+  --planbg:#2b2205; --planbd:#57451a; --plantx:#FFB000; --carrybg:#20261c; --okbg:#2b2205;
+  --brand:#FFB000; --flashbg:#2b2205; --flashfg:#F2F5F8; --thumb:#3B3F4A;
+  --sh:0 4px 18px rgba(0,0,0,.65);
 }
+[data-theme="dark"] .sema{color:#0A0A0C}
+[data-theme="dark"] .sema .big,[data-theme="dark"] .sema ul{color:#0A0A0C}
 /* ---- modo oscuro premium: negro + oro ---- */
-[data-theme="dark"] body{background:radial-gradient(1100px 520px at 85% -5%, #1e1707 0%, #0a0a0d 60%) fixed,var(--bg)}
-[data-theme="dark"] .card>h3{background:linear-gradient(90deg,#262009,#16120a)!important;color:#f0c75e!important;border-bottom:1px solid #3a2f14}
-[data-theme="dark"] button.primary,[data-theme="dark"] button.mini.primary{background:linear-gradient(135deg,#d4af37,#f0c75e);color:#141419}
+[data-theme="dark"] body{background:radial-gradient(1100px 520px at 85% -5%, #241c06 0%, #0a0a0d 60%) fixed,var(--bg)}
+[data-theme="dark"] .card>h3{background:linear-gradient(90deg,#241c06,#120e04)!important;color:#FFC53D!important;border-bottom:1px solid #4a3b12}
+[data-theme="dark"] button.primary,[data-theme="dark"] button.mini.primary{background:linear-gradient(135deg,#FFB000,#FFC53D);color:#141419}
 [data-theme="dark"] button.save.dirty{color:#141419}
-[data-theme="dark"] .tabs button.on{color:#f0c75e}
-[data-theme="dark"] .bar i{background:linear-gradient(90deg,#b8860b,#f0c75e)}
-[data-theme="dark"] input:focus,[data-theme="dark"] select:focus{outline-color:#d4af37;border-color:#d4af37}
+[data-theme="dark"] .tabs button.on{color:#FFC53D}
+[data-theme="dark"] .bar i{background:linear-gradient(90deg,#CC8C00,#FFC53D)}
+[data-theme="dark"] input:focus,[data-theme="dark"] select:focus{outline-color:#FFB000;border-color:#FFB000}
 [data-theme="dark"] .sema{box-shadow:inset 0 0 0 1px rgba(240,199,94,.28)}
 [data-theme="dark"] .pill{background:#24242e;color:#c9c0ae}
-[data-theme="dark"] .kpi{border-color:#2e2a1c}
-[data-theme="dark"] .chartBox{border-color:#26262e}
-[data-theme="dark"] .grip{color:#5c5648}
+[data-theme="dark"] .kpi{border-color:#3B3F4A}
+[data-theme="dark"] .chartBox{border-color:#3B3F4A}
+[data-theme="dark"] .grip{color:#3B3F4A}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -200,7 +203,7 @@ tr.carryrow td{background:var(--carrybg)}
         <div class="body">
           <div class="mini-lbl" style="margin:2px 0 4px"><b>Cuota fija mensual</b> — muévete con ◀ ▶ y escribe en <b>“pago de este mes”</b> lo que te predijo el banco para CADA mes; queda guardado mes a mes:</div>
           <div class="scroll"><table id="tblCuoF">
-            <thead><tr><th>Entidad / crédito</th><th style="width:92px">Pago mínimo</th><th style="width:96px">Pago calculado</th><th style="width:100px">💵 Vas a cancelar (el que manda)</th><th style="width:100px">Saldo según banco</th><th style="width:100px">Saldo recalculado</th><th style="width:30px"></th></tr></thead>
+            <thead><tr><th>Entidad / crédito</th><th style="width:92px">Pago mínimo</th><th style="width:96px">Pago calculado</th><th style="width:100px">Pago concreto 💵</th><th style="width:100px">Saldo según banco</th><th style="width:100px">Saldo recalculado</th><th style="width:30px"></th></tr></thead>
             <tbody></tbody><tfoot><tr><td colspan="2">Total cuotas que pagas este mes</td><td class="num" id="totCuoF"></td><td class="num" id="totSaldo"></td><td></td></tr></tfoot>
           </table></div>
           <div class="rowAdd"><input id="cuof_e" placeholder="Entidad (ej. Nequi)"><input type="number" id="cuof_c" placeholder="Pago mínimo"><input type="number" id="cuof_s" placeholder="Saldo"><button class="mini primary" onclick="addCuoF()">+ Agregar</button></div>
@@ -581,7 +584,7 @@ function renderIng(){
   $("totIng").textContent=F(totals().ing);$("subIng").textContent=F(totals().ing);
 }
 const CATCOLORS=["#3a6ea5","#0e7c66","#1d9a6c","#c2497d","#e08a3c","#d64533","#8a6414","#7d5ba6","#6b7a89"];
-const CATCOLORS_D=["#8ab4f8","#d4af37","#3dd68c","#e895c8","#ffb224","#ff5c5c","#f0c75e","#c9a2e8","#a49b8a"];
+const CATCOLORS_D=["#8f96a3","#FFB000","#5f6673","#FFD34D","#c2c7d0","#FF6B6B","#e6e9ee","#CC8C00","#3B3F4A"];
 function aplicaFijo(r,m){ return (r.desde||"2000-01")<=m && (!r.hasta || m<=r.hasta); }
 function catColor(cat){ const i=S.LISTAS.catFijas.indexOf(cat); const arr=document.documentElement.getAttribute("data-theme")==="dark"?CATCOLORS_D:CATCOLORS; return arr[i>=0?i:arr.length-1]; }
 function renderFij(){
@@ -654,7 +657,7 @@ function renderCuo(){
     return `<tr class="del"><td><input class="inline" value="${esc(r.e)}" data-k="e" data-id="${r.id}"></td>
     <td><input type="number" class="inline" value="${pagoMin(S.mes,r)}" data-k="p" data-id="${r.id}" title="Pago mínimo del mes: lo que coloques aquí queda como referencia también para los meses siguientes hasta que lo cambies"></td>
     <td class="num" title="Precálculo si te aguantas al mínimo: pago mínimo + cargos con tarjeta del mes anterior" style="color:var(--soft)">${F(pagoCalc(S.mes,r))}</td>
-    <td><input type="number" class="inline" value="${Math.round(pagoAplic(S.mes,r))}" data-k="px" data-id="${r.id}" title="${ov?"Valor manual: este es el que se descuenta de tus ingresos y baja la deuda":"Automático (= pago calculado). Escríbelo encima si vas a cancelar otro valor: este es el que manda"}" style="border-color:${ov?"var(--gold)":"var(--coral)"};font-weight:800${ov?";background:var(--planbg)":""}"></td>
+    <td><input type="number" class="inline" value="${Math.round(pagoAplic(S.mes,r))}" data-k="px" data-id="${r.id}" title="${ov?"Pago concreto definido por ti: este es el que se descuenta de tus ingresos y baja la deuda":"Automático (= pago calculado). Escríbelo si vas a pagar otro valor: este es el que manda"}" style="border-color:${ov?"var(--gold)":"var(--coral)"};font-weight:800${ov?";background:var(--planbg)":""}"></td>
     <td><input type="number" class="inline" value="${(()=>{const a=anchor(S.mes,r);return Math.round(a!=null?a:saldoCalc(S.mes,r));})()}" data-k="sal" data-id="${r.id}" title="Escribe aquí lo que te dice el banco que debes en ${mesLabel(S.mes)}: la tasa de interés se deduce sola comparando con el mes anterior"></td>
     <td class="num" title="Cálculo de la app: saldo anterior + cargos con tarjeta − pago mínimo + interés implícito. Si difiere del banco, al escribir el dato real la tasa se ajusta sola" style="color:var(--soft)">${F(Math.round(saldoCalc(S.mes,r)))}</td>
     <td><button class="mini danger" title="Eliminar" onclick="delRow('cuotasF','${r.id}')">✕</button></td></tr>`;}).join("")
@@ -701,8 +704,8 @@ function renderCuo(){
 function paintNoteCuo(){
   const t=totals();
   $("noteCuo").innerHTML = S.mes>S.abierto
-    ? "🔭 Mes futuro: la cadena es <b>pago mínimo (heredado del último que colocaste) → pago calculado (mín + cargos tarjeta del mes anterior) → 💵 vas a cancelar</b> (el que manda, en dorado si lo escribes a mano). El saldo es proyección hasta que escribas el del banco."
-    : "La cadena: <b>pago mínimo</b> (lo colocas tú; queda como referencia para los meses siguientes hasta que lo cambies) → <b>pago calculado</b> (mínimo + cargos con tarjeta del mes anterior, "+F(t.cardPrev)+": lo que pagarías si te aguantas) → <b>💵 vas a cancelar</b> (el que manda: se descuenta de tus ingresos y baja la deuda; en dorado si lo escribes a mano) → <b>saldos</b>: el del banco (escríbelo) vs el recalculado por la app con intereses implícitos.";
+    ? "🔭 Mes futuro: la cadena es <b>pago mínimo (heredado del último que colocaste) → pago calculado (mín + cargos tarjeta del mes anterior) → <b>pago concreto 💵</b> (el que manda, en ámbar si lo escribes a mano). El saldo es proyección hasta que escribas el del banco."
+    : "La cadena: <b>pago mínimo</b> (lo colocas tú; queda como referencia para los meses siguientes hasta que lo cambies) → <b>pago calculado</b> (mínimo + cargos con tarjeta del mes anterior, "+F(t.cardPrev)+": lo que pagarías si te aguantas) → <b>pago concreto 💵</b> (el que manda: se descuenta de tus ingresos y baja la deuda; en ámbar si lo escribes a mano) → <b>saldos</b>: el del banco (escríbelo) vs el recalculado por la app con intereses implícitos.";
 }
 function renderAho(){
   const arr=B(S.mes).ahorro, tb=$("tblAho").tBodies[0];
