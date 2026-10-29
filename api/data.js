@@ -1,7 +1,7 @@
 // Estado financiero por perfil, protegido por token de sesion (o Admin).
 // GET  /api/data?u=<uid>  con header x-token
 // PUT  /api/data?u=<uid>  con header x-token
-import { USERS, sha256hex, tokenHash, readJson, writeJson } from "./lib.js";
+import { USERS, tokenHash, readJson, writeJson } from "./lib.js";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -10,11 +10,10 @@ export default async function handler(req, res) {
     const url = new URL(req.url, "http://local");
     const u = (url.searchParams.get("u") || "").match(/^[a-z0-9-]{1,40}$/);
     const PREFIX = u ? "miplata-u-" + u[0] + "-" : "miplata-v1-";
-    // autorizacion: token de sesion del dueno del perfil (o Admin)
     const tok = req.headers["x-token"] || "";
     if (tok && u) {
       const reg = (await readJson(sdk, USERS)) || { users: [] };
-      const th = tokenHash(tok);
+      const th = await tokenHash(tok);
       const owner = reg.users.find(x => x.id === u[0] && (x.sessions || []).includes(th) && !x.blocked);
       const admin = reg.users.find(x => x.role === "admin" && (x.sessions || []).includes(th) && !x.blocked);
       if (!owner && !admin) return res.status(401).json({ error: "sesion invalida para este perfil" });
