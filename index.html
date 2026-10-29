@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="es">
 <head>
@@ -203,6 +202,7 @@ tr.carryrow td{background:var(--carrybg)}
   <button id="tabMes" class="on">📝 MI MES + PANEL</button>
   <button id="tabHist">🗂 HISTORIAL</button>
   <button id="tabTab">🧮 TABLERO</button>
+  <button id="tabAdm" style="display:none">🛡 ADMIN</button>
   <button id="tabAyuda">❓ AYUDA</button>
 </div>
 
@@ -328,6 +328,19 @@ tr.carryrow td{background:var(--carrybg)}
     <div class="card"><h3 class="h-cuo">🛒 En qué se va el ingreso</h3><div class="body" id="tabGas"></div></div>
   </div>
   <div class="card"><h3 class="h-hist">🆚 Mes actual vs mes anterior</h3><div class="body" id="tabComp"></div></div>
+</section>
+
+<section id="viewAdm" class="view">
+  <div class="card"><h3 class="h-cuo">🛡 Administración de perfiles <span class="sub">solo Admin</span></h3>
+    <div class="body">
+      <div class="rowAdd"><input id="admNom" placeholder="Nombre del nuevo perfil"><input id="admPass" type="password" placeholder="Contraseña inicial"><button class="mini primary" onclick="admCreate()">+ Crear perfil</button></div>
+      <div class="scroll" style="max-height:360px"><table id="tblAdm">
+        <thead><tr><th>Perfil</th><th>Rol</th><th>Estado</th><th>Acciones (✏️ nombre · 🔑 contraseña · ⏸ bloquear · ✕ eliminar)</th></tr></thead>
+        <tbody></tbody></table></div>
+      <div class="note" id="admMsg"></div>
+      <div class="note">Los nombres se guardan <b>cifrados (AES-GCM)</b> y las contraseñas <b>hasheadas con salt</b>; nadie (ni el storage público) puede leerlos. Cambiar una contraseña cierra las sesiones de ese perfil.</div>
+    </div>
+  </div>
 </section>
 
 <section id="viewHist" class="view">
@@ -1142,8 +1155,8 @@ function renderAll(tables){
   }
   renderDash();renderHist();renderTab();paintDirty();paintPriv();
 }
-function tab(v){["Mes","Hist","Tab","Ayuda"].forEach(x=>$("tab"+x).classList.remove("on"));
-  ["viewMes","viewHist","viewTab","viewAyuda"].forEach(x=>$(x).classList.remove("on"));
+function tab(v){["Mes","Hist","Tab","Adm","Ayuda"].forEach(x=>$("tab"+x).classList.remove("on"));
+  ["viewMes","viewHist","viewTab","viewAdm","viewAyuda"].forEach(x=>$(x).classList.remove("on"));
   $("tab"+v).classList.add("on");$("view"+v).classList.add("on");}
 $("tabMes").onclick=()=>tab("Mes");$("tabHist").onclick=()=>tab("Hist");$("tabTab").onclick=()=>tab("Tab");$("tabAyuda").onclick=()=>tab("Ayuda");
 $("prevM").onclick=()=>{if(S.mes>S.abierto){S.mes=addM(S.mes,-1);renderAll(true);}};
@@ -1159,7 +1172,7 @@ function paintSync(){ const b=$("btnSync"); if(!b)return;
 }
 async function syncPull(silent){
   try{
-    const r=await fetch(apiData(),{headers:{accept:"application/json"},cache:"no-store"});
+    const r=await fetch(apiData(),{headers:{accept:"application/json",...(SESS&&SESS.token?{"x-token":SESS.token}:{})},cache:"no-store"});
     if(!r.ok) throw 0;
     const j=await r.json();
     syncMode="cloud";
@@ -1177,7 +1190,7 @@ async function syncPull(silent){
 }
 function syncPushNow(){
   if(typeof fetch==="undefined"){ syncMode="local"; paintSync(); return Promise.resolve(); }
-  return fetch(apiData(),{method:"PUT",cache:"no-store",headers:{"content-type":"application/json"},
+  return fetch(apiData(),{method:"PUT",cache:"no-store",headers:{"content-type":"application/json",...(SESS&&SESS.token?{"x-token":SESS.token}:{})},
     body:JSON.stringify({updatedAt:Date.now(),state:S})})
     .then(r=>{ if(!r.ok)throw 0; syncMode="cloud"; store.set(updKey(),String(Date.now())); })
     .catch(()=>{ if(syncMode==="cloud")flash("⚠️ La nube no respondió: por ahora guardado solo en este dispositivo."); syncMode="local"; })
@@ -1204,7 +1217,15 @@ $("btnTema").onclick=()=>{ const m=$("themeMenu"); m.style.display=m.style.displ
 $("btnSync").onclick=async()=>{ await syncPushNow(); await syncPull(true); flash(syncMode==="cloud"?"☁️ Sincronizado con la nube.":"⚠️ Sin nube activa: guarda solo en este dispositivo.");};
 $("btnImport").onclick=()=>$("fileImport").click();
 $("fileImport").onchange=e=>{if(e.target.files[0])importar(e.target.files[0]);e.target.value="";};
+function startAdmin(sess){
+  $("loginView").style.display="none";
+  $("profLine").textContent="perfil: "+sess.nombre+" · 🛡 ADMIN · dispositivo recordado";
+  ["tabMes","tabHist","tabTab","tabAyuda"].forEach(id=>{ const b=$(id); if(b) b.style.display="none"; });
+  $("tabAdm").style.display=""; tab("Adm"); admLoad();
+}
 function startApp(sess){
+  SESS=sess;
+  if(sess.role==="admin"){ return startAdmin(sess); }
   UID=sess.uid; KEY="miplata.v3."+UID;
   if(!store.get(KEY) && !store.get("miplata.migrated")){   /* migracion unica por dispositivo: los perfiles nuevos nacen limpios */
     for(const ok of ["miplata.v2","miplata.v1"]){ const raw=store.get(ok);
@@ -1222,41 +1243,34 @@ function startApp(sess){
   document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&!DIRTY.size) syncPull(true); });
   paintSync();
 }
-async function hashStr(t){
-  try{ if(window.crypto&&crypto.subtle){ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));
-    return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); } }catch(e){}
-  let h=0x811c9dc5; for(let i=0;i<t.length;i++){ h^=t.charCodeAt(i); h=Math.imul(h,0x01000193)>>>0; } return "f"+h.toString(16);
-}
-async function fetchUsers(){ const r=await fetch("api/users",{cache:"no-store"}); if(!r.ok) throw 0; return await r.json(); }
-async function uidFrom(nm){ return (await hashStr("uid::"+nm.toLowerCase())).slice(0,12); }
+let SESS=null, pendingReset=false;
+const apiUsers=o=>fetch("api/users",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(o),cache:"no-store"}).then(r=>r.json().then(j=>({r,j})));
 function showLogin(msg){ $("loginView").style.display="flex"; $("lgMsg").textContent=msg||""; }
-let pendingReset=false;
 async function doLogin(){
   const nom=$("lgNom").value.trim(), pass=$("lgPass").value;
   if(!nom||!pass) return showLogin("Escribe nombre y contraseña.");
-  let reg; try{ reg=await fetchUsers(); }catch(e){ return showLogin("⚠️ No alcanzo la nube. Usa «Continuar sin perfil» o revisa tu conexión."); }
-  const u=(reg.users||[]).find(x=>x.nombre.toLowerCase()===nom.toLowerCase());
-  if(!u) return showLogin("Ese perfil no existe aún: créalo con «Crear perfil».");
-  const h=await hashStr(nom.toLowerCase()+"::"+pass);
-  if(u.hash!==h) return showLogin("Contraseña incorrecta para "+u.nombre+".");
-  const sess={uid:u.id,nombre:u.nombre,h}; store.set("miplata.session",JSON.stringify(sess));
+  let res; try{ res=await apiUsers({action:"login",nombre:nom,pass}); }catch(e){ return showLogin("⚠️ No alcanzo la nube. Usa «Continuar sin perfil» o revisa tu conexión."); }
+  if(res.r.status===403) return showLogin("🚫 Perfil bloqueado: consulta al Admin.");
+  if(res.r.status===404) return showLogin("Ese perfil no existe aún: créalo con «Crear perfil».");
+  if(res.r.status===401) return showLogin("Contraseña incorrecta para "+nom+".");
+  if(res.r.status!==200) return showLogin("Error: "+(res.j.error||res.r.status));
+  const sess={uid:res.j.perfil.id,nombre:res.j.perfil.nombre,token:res.j.token,role:res.j.perfil.role};
+  store.set("miplata.session",JSON.stringify(sess));
   if(pendingReset){ pendingReset=false; store.set("miplata.v3."+sess.uid,""); store.set("miplata.v3."+sess.uid+".updated",""); }
   startApp(sess);
 }
 async function doRegister(){
   const nom=$("lgNom").value.trim(), pass=$("lgPass").value;
-  if(!nom||!pass) return showLogin("Elige nombre y contraseña: solo te la pedirá en dispositivos nuevos.");
-  const h=await hashStr(nom.toLowerCase()+"::"+pass), id=await uidFrom(nom);
-  try{ const r=await fetch("api/users",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({id,nombre:nom,hash:h})});
-    if(r.status===409) return showLogin("Ese nombre ya existe: entra con su contraseña.");
-    if(!r.ok) throw 0;
-  }catch(e){ return showLogin("⚠️ No alcanzo la nube para crear el perfil."); }
-  const sess={uid:id,nombre:nom,h}; store.set("miplata.session",JSON.stringify(sess)); startApp(sess);
-  flash("🎉 Perfil "+nom+" creado: este dispositivo queda recordado.");
+  if(!nom||!pass) return showLogin("Elige nombre y contraseña: solo se pedirá en dispositivos nuevos.");
+  let res; try{ res=await apiUsers({action:"register",nombre:nom,pass}); }catch(e){ return showLogin("⚠️ No alcanzo la nube para crear el perfil."); }
+  if(res.r.status===409) return showLogin("Ese nombre ya existe: entra con su contraseña.");
+  if(res.r.status!==200) return showLogin("Error: "+(res.j.error||res.r.status));
+  flash("🎉 Perfil creado: ahora entra con tu contraseña.");
+  doLogin();
 }
 function doLocal(){
   const nom=$("lgNom").value.trim()||"Local";
-  const sess={uid:"local-"+Math.random().toString(36).slice(2,8),nombre:nom,h:"local"};
+  const sess={uid:"local-"+Math.random().toString(36).slice(2,8),nombre:nom,h:"local",token:"",role:"user"};
   store.set("miplata.session",JSON.stringify(sess)); startApp(sess);
   flash("⚠️ Perfil solo-en-este-dispositivo: no se sincroniza con la nube.");
 }
@@ -1264,17 +1278,36 @@ function doLogout(){ store.set("miplata.session",""); location.reload(); }
 async function authBoot(){
   const sess=JSON.parse(store.get("miplata.session")||"null");
   if(sess&&sess.uid){
-    let reg=null; try{ reg=await fetchUsers(); }catch(e){}
-    if(reg){
-      const u=(reg.users||[]).find(x=>x.id===sess.uid);
-      if(u&&u.hash===sess.h){ startApp({uid:u.id,nombre:u.nombre,h:u.hash}); return; }
-      if(u){ store.set("miplata.session",""); showLogin("La contraseña cambió en otro dispositivo: entra de nuevo."); return; }
-      showLogin(); return;
+    if(sess.token){
+      try{ const {r,j}=await apiUsers({action:"who",token:sess.token});
+        if(r.ok){ startApp({uid:j.perfil.id,nombre:j.perfil.nombre,token:sess.token,role:j.perfil.role}); return; }
+      }catch(e){ startApp(sess); return; }   /* sin internet: el dispositivo recordado entra */
+      store.set("miplata.session",""); showLogin("Sesión expirada o revocada: entra de nuevo."); return;
     }
-    startApp(sess); return;   /* sin internet: el dispositivo recordado entra igual */
+    startApp(sess); return;
   }
   showLogin();
 }
+/* ---- panel Admin ---- */
+const admApi=o=>apiUsers(Object.assign({token:SESS?SESS.token:""},o));
+async function admLoad(){
+  const {r,j}=await admApi({action:"list"});
+  if(!r.ok){ $("admMsg").textContent="⚠️ "+(j.error||"error"); return; }
+  $("tblAdm").tBodies[0].innerHTML=j.users.map(u=>`<tr>
+    <td><b>${esc(u.nombre)}</b></td><td>${u.role==="admin"?"🛡 Admin":"usuario"}</td><td>${u.blocked?"🚫 bloqueado":"✅ activo"}</td>
+    <td style="white-space:nowrap">${u.role==="admin"?"<span class=\'mini-lbl\'>cuenta maestra</span>":`<button class="mini" title="Renombrar" onclick="admRename('${u.id}')">✏️</button> <button class="mini" title="Nueva contraseña" onclick="admPass('${u.id}')">🔑</button> <button class="mini" title="${u.blocked?"Desbloquear":"Bloquear"}" onclick="admBlock('${u.id}',${!u.blocked})">${u.blocked?"▶":"⏸"}</button> <button class="mini danger" title="Eliminar" onclick="admDel('${u.id}')">✕</button>`}</td></tr>`).join("");
+}
+async function admCreate(){
+  const nom=$("admNom").value.trim(), pass=$("admPass").value;
+  if(!nom||!pass){ $("admMsg").textContent="Escribe nombre y contraseña inicial."; return; }
+  const {r,j}=await admApi({action:"create",nombre:nom,pass});
+  $("admMsg").textContent=r.ok? "✅ Perfil "+nom+" creado (cifrado y hasheado)." : "⚠️ "+(j.error||"");
+  if(r.ok){ $("admNom").value=""; $("admPass").value=""; admLoad(); }
+}
+async function admRename(id){ const v=prompt("Nuevo nombre del perfil:"); if(!v)return; const {r,j}=await admApi({action:"rename",id,nombre:v}); $("admMsg").textContent=r.ok?"✏️ Nombre actualizado.":"⚠️ "+(j.error||""); admLoad(); }
+async function admPass(id){ const v=prompt("Nueva contraseña (esto cierra sus sesiones actuales):"); if(!v)return; const {r,j}=await admApi({action:"setpass",id,pass:v}); $("admMsg").textContent=r.ok?"🔑 Contraseña actualizada.":"⚠️ "+(j.error||""); }
+async function admBlock(id,b){ const {r,j}=await admApi({action:"setblock",id,blocked:b}); $("admMsg").textContent=r.ok?(b?"🚫 Perfil bloqueado.":"▶ Perfil reactivado."):"⚠️ "+(j.error||""); admLoad(); }
+async function admDel(id){ if(!confirm("¿Eliminar el perfil? Sus datos en la nube quedan huérfanos (puedo podarlos después)."))return; const {r,j}=await admApi({action:"delete",id}); $("admMsg").textContent=r.ok?"🗑 Perfil eliminado.":"⚠️ "+(j.error||""); admLoad(); }
 authBoot();
 </script>
 </body>
