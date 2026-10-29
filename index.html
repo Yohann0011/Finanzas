@@ -195,7 +195,7 @@ tr.carryrow td{background:var(--carrybg)}
   <div class="glass" style="max-width:430px;width:100%;padding:26px 24px;margin:auto">
     <!-- LOGIN -->
     <div id="authLogin">
-      <div class="gavatar">👤</div>
+      <div class="gavatar" id="gAvatar" style="cursor:pointer;user-select:none" onclick="avatarTap()" title=" ">🏆</div>
       <div class="gtitle">MI PLATA</div>
       <label class="glabel">Usuario</label>
       <input class="ginput" id="lgNom" placeholder="tu nombre de perfil" autocomplete="username">
@@ -208,7 +208,7 @@ tr.carryrow td{background:var(--carrybg)}
       <button class="gbtn" onclick="doLogin()">ENTRAR</button>
       <div class="gsep">¿primera vez?</div>
       <button class="gbtn ghost" onclick="showAuth('authReg')">✨ CREAR CUENTA</button>
-      <div class="grow" style="justify-content:center;gap:14px">
+      <div class="grow" id="secretOps" style="display:none;justify-content:center;gap:14px">
         <span class="glink" onclick="pendingReset=true;showAuth('authLogin');$('lgMsg').textContent='🧹 Tras entrar, este perfil quedará en blanco en este dispositivo.'">🧹 entrar en blanco aquí</span>
         <span class="glink" onclick="doLocal()">continuar sin perfil</span>
       </div>
@@ -1316,7 +1316,11 @@ function startApp(sess){
   document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&!DIRTY.size) syncPull(true); });
   paintSync();
 }
-let SESS=null, pendingReset=false;
+let SESS=null, pendingReset=false, taps=0, tapT=null;
+function avatarTap(){
+  taps++; clearTimeout(tapT); tapT=setTimeout(()=>{ taps=0; }, 2500);
+  if(taps>=5){ taps=0; const e=$("secretOps"); if(e){ const show=e.style.display==="none"; e.style.display=show?"flex":"none"; msg("lgMsg", show?"🔧 Opciones avanzadas visibles.":""); } }
+}
 const SESSION="miplata.session";
 const sstore={get(k){try{return sessionStorage.getItem(k);}catch(e){return null;}},set(k,v){try{sessionStorage.setItem(k,v);}catch(e){}},del(k){try{sessionStorage.removeItem(k);}catch(e){}}};
 const apiUsers=o=>fetch("api/users",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(o),cache:"no-store"}).then(r=>r.json().then(j=>({r,j})));
