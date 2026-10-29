@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="es">
 <head>
@@ -173,6 +174,7 @@ tr.carryrow td{background:var(--carrybg)}
       <input id="lgPass" type="password" placeholder="••••••" autocomplete="current-password">
       <div class="rowAdd" style="margin-top:10px"><button class="mini primary" onclick="doLogin()">Entrar</button><button class="mini" onclick="doRegister()">Crear perfil</button></div>
       <div class="rowAdd"><button class="mini" onclick="doLocal()">Continuar sin perfil (solo este dispositivo)</button></div>
+      <div class="rowAdd"><button class="mini danger" onclick="pendingReset=true;doLogin()" title="Borra la copia local de este perfil en este dispositivo y entra en blanco (la nube, si tiene datos tuyos, los traerá)">🧹 Entrar con perfil en blanco aquí</button></div>
       <div class="note" id="lgMsg" style="color:var(--bad)"></div>
       <div class="note">Cada perfil ve <b>solo sus propios datos</b>, en la nube y en cada dispositivo donde entre. Este dispositivo queda <b>recordado</b>: no pedirá contraseña de nuevo hasta que pulses 🚪. Si es tu primera vez aquí, crea el perfil con el mismo nombre y contraseña que usaste en tu otro dispositivo y tus datos aparecerán solos.</div>
     </div>
@@ -1150,13 +1152,14 @@ $("btnCerrar").onclick=cerrarMes;
 $("btnExport").onclick=exportar;
 /* ---- sincronizacion entre dispositivos (API /api/data, p.ej. Vercel + KV) ---- */
 let syncMode="off", pushT=null;
+const apiData=()=> "api/data"+(UID? "?u="+encodeURIComponent(UID) : "");
 function paintSync(){ const b=$("btnSync"); if(!b)return;
   b.textContent = syncMode==="cloud"?"☁️":"⚠️";
   b.title = syncMode==="cloud"?"Datos en la nube: este dispositivo está sincronizado con tu URL":"Sin nube: guardado solo en este dispositivo (despliega el proyecto Vercel para sincronizar)";
 }
 async function syncPull(silent){
   try{
-    const r=await fetch("api/data",{headers:{accept:"application/json"},cache:"no-store"});
+    const r=await fetch(apiData(),{headers:{accept:"application/json"},cache:"no-store"});
     if(!r.ok) throw 0;
     const j=await r.json();
     syncMode="cloud";
@@ -1174,7 +1177,7 @@ async function syncPull(silent){
 }
 function syncPushNow(){
   if(typeof fetch==="undefined"){ syncMode="local"; paintSync(); return Promise.resolve(); }
-  return fetch("api/data",{method:"PUT",cache:"no-store",headers:{"content-type":"application/json"},
+  return fetch(apiData(),{method:"PUT",cache:"no-store",headers:{"content-type":"application/json"},
     body:JSON.stringify({updatedAt:Date.now(),state:S})})
     .then(r=>{ if(!r.ok)throw 0; syncMode="cloud"; store.set(updKey(),String(Date.now())); })
     .catch(()=>{ if(syncMode==="cloud")flash("⚠️ La nube no respondió: por ahora guardado solo en este dispositivo."); syncMode="local"; })
@@ -1227,6 +1230,7 @@ async function hashStr(t){
 async function fetchUsers(){ const r=await fetch("api/users",{cache:"no-store"}); if(!r.ok) throw 0; return await r.json(); }
 async function uidFrom(nm){ return (await hashStr("uid::"+nm.toLowerCase())).slice(0,12); }
 function showLogin(msg){ $("loginView").style.display="flex"; $("lgMsg").textContent=msg||""; }
+let pendingReset=false;
 async function doLogin(){
   const nom=$("lgNom").value.trim(), pass=$("lgPass").value;
   if(!nom||!pass) return showLogin("Escribe nombre y contraseña.");
@@ -1235,7 +1239,9 @@ async function doLogin(){
   if(!u) return showLogin("Ese perfil no existe aún: créalo con «Crear perfil».");
   const h=await hashStr(nom.toLowerCase()+"::"+pass);
   if(u.hash!==h) return showLogin("Contraseña incorrecta para "+u.nombre+".");
-  const sess={uid:u.id,nombre:u.nombre,h}; store.set("miplata.session",JSON.stringify(sess)); startApp(sess);
+  const sess={uid:u.id,nombre:u.nombre,h}; store.set("miplata.session",JSON.stringify(sess));
+  if(pendingReset){ pendingReset=false; store.set("miplata.v3."+sess.uid,""); store.set("miplata.v3."+sess.uid+".updated",""); }
+  startApp(sess);
 }
 async function doRegister(){
   const nom=$("lgNom").value.trim(), pass=$("lgPass").value;
