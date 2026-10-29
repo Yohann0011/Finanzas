@@ -160,26 +160,91 @@ tr.carryrow td{background:var(--carrybg)}
 .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--plum),#a583c9)}
 .barwrap{display:flex;align-items:center;gap:6px}
 .planBanner{background:var(--planbg);border:1px solid var(--planbd);color:var(--plantx);border-radius:10px;padding:8px 12px;font-size:12.5px;margin-bottom:12px}
+/* ---- pantalla de acceso: cristal + oro negro ---- */
+#loginView{background:
+  radial-gradient(900px 520px at 12% -10%, rgba(255,176,0,.16), transparent 60%),
+  radial-gradient(760px 520px at 108% 112%, rgba(255,176,0,.10), transparent 62%),
+  radial-gradient(500px 300px at 70% 20%, rgba(255,107,107,.06), transparent 60%),
+  #0A0A0C;}
+.glass{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(30,31,37,.55);
+  border:1px solid rgba(255,176,0,.28);border-radius:22px;
+  box-shadow:0 20px 60px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06);}
+.gavatar{width:74px;height:74px;margin:0 auto 10px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:34px;background:radial-gradient(circle at 35% 30%, rgba(255,176,0,.35), rgba(255,176,0,.08));
+  border:1px solid rgba(255,176,0,.45);box-shadow:0 0 24px rgba(255,176,0,.25);}
+.gtitle{text-align:center;font-weight:800;letter-spacing:2px;color:#FFB000;font-size:18px;margin:0 0 14px}
+.ginput{background:transparent;border:0;border-bottom:1px solid rgba(242,245,248,.28);color:#F2F5F8;
+  padding:10px 6px;border-radius:0;width:100%;font:inherit}
+.ginput::placeholder{color:rgba(242,245,248,.45)}
+.ginput:focus{outline:none;border-bottom-color:#FFB000;box-shadow:0 6px 18px -12px rgba(255,176,0,.8)}
+.glabel{font-size:11px;color:rgba(242,245,248,.6);text-transform:uppercase;letter-spacing:.6px;margin:10px 0 2px;display:block}
+.gbtn{display:block;width:100%;background:linear-gradient(135deg,#FFB000,#FFD34D);color:#0A0A0C;font-weight:800;
+  letter-spacing:1.5px;border-radius:12px;padding:12px;border:0;cursor:pointer;margin-top:16px}
+.gbtn.ghost{background:transparent;color:#FFB000;border:1px solid rgba(255,176,0,.55);font-weight:700}
+.gbtn.ghost:hover{background:rgba(255,176,0,.08)}
+.grow{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:12px;color:rgba(242,245,248,.75)}
+.glink{color:rgba(242,245,248,.7);text-decoration:underline;cursor:pointer}
+.glink.gold{color:#FFB000}
+.gmsg{min-height:18px;margin-top:10px;font-size:12.5px;color:#FFD34D;text-align:center}
+.gsep{display:flex;align-items:center;gap:10px;margin:16px 0 4px;color:rgba(242,245,248,.4);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.gsep:before,.gsep:after{content:"";flex:1;height:1px;background:rgba(255,176,0,.25)}
 </style>
 </head>
 <body>
-<div id="loginView" style="position:fixed;inset:0;z-index:80;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px">
-  <div class="card" style="max-width:400px;width:100%;margin:0">
-    <h3 class="h-dash">🔐 Mi Plata · perfiles</h3>
-    <div class="body">
-      <label class="mini-lbl">Nombre del perfil</label>
-      <input id="lgNom" placeholder="ej. Yohann, Ari, familia…" autocomplete="username">
-      <label class="mini-lbl" style="display:block;margin-top:8px">Contraseña</label>
-      <input id="lgPass" type="password" placeholder="••••••" autocomplete="current-password">
-      <div class="rowAdd" style="margin-top:10px"><button class="mini primary" onclick="doLogin()">Entrar</button><button class="mini" onclick="doRegister()">Crear perfil</button></div>
-      <div class="rowAdd"><button class="mini" onclick="doLocal()">Continuar sin perfil (solo este dispositivo)</button></div>
-      <div class="rowAdd"><button class="mini danger" onclick="pendingReset=true;doLogin()" title="Borra la copia local de este perfil en este dispositivo y entra en blanco (la nube, si tiene datos tuyos, los traerá)">🧹 Entrar con perfil en blanco aquí</button></div>
-      <div class="note" id="lgMsg" style="color:var(--bad)"></div>
-      <div class="note">Cada perfil ve <b>solo sus propios datos</b>, en la nube y en cada dispositivo donde entre. Este dispositivo queda <b>recordado</b>: no pedirá contraseña de nuevo hasta que pulses 🚪. Si es tu primera vez aquí, crea el perfil con el mismo nombre y contraseña que usaste en tu otro dispositivo y tus datos aparecerán solos.</div>
+<div id="loginView" style="position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto">
+  <div class="glass" style="max-width:430px;width:100%;padding:26px 24px;margin:auto">
+    <!-- LOGIN -->
+    <div id="authLogin">
+      <div class="gavatar">👤</div>
+      <div class="gtitle">MI PLATA</div>
+      <label class="glabel">Usuario</label>
+      <input class="ginput" id="lgNom" placeholder="tu nombre de perfil" autocomplete="username">
+      <label class="glabel">Contraseña</label>
+      <input class="ginput" id="lgPass" type="password" placeholder="••••••••" autocomplete="current-password">
+      <div class="grow">
+        <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="lgRec" checked style="width:auto"> Recordarme en este dispositivo</label>
+        <span class="glink" onclick="showAuth('authOlvido')">¿Olvidaste tu contraseña?</span>
+      </div>
+      <button class="gbtn" onclick="doLogin()">ENTRAR</button>
+      <div class="gsep">¿primera vez?</div>
+      <button class="gbtn ghost" onclick="showAuth('authReg')">✨ CREAR CUENTA</button>
+      <div class="grow" style="justify-content:center;gap:14px">
+        <span class="glink" onclick="pendingReset=true;showAuth('authLogin');$('lgMsg').textContent='🧹 Tras entrar, este perfil quedará en blanco en este dispositivo.'">🧹 entrar en blanco aquí</span>
+        <span class="glink" onclick="doLocal()">continuar sin perfil</span>
+      </div>
+      <div class="gmsg" id="lgMsg"></div>
+    </div>
+    <!-- REGISTRO -->
+    <div id="authReg" style="display:none">
+      <div class="gtitle">CREAR CUENTA</div>
+      <label class="glabel">Usuario (único)</label>
+      <input class="ginput" id="rgNom" placeholder="mínimo 3 caracteres" autocomplete="username">
+      <label class="glabel">Correo electrónico</label>
+      <input class="ginput" id="rgMail" type="email" placeholder="nombre@dominio.com" autocomplete="email">
+      <label class="glabel">Teléfono</label>
+      <input class="ginput" id="rgTel" type="tel" placeholder="+57 300 0000000" autocomplete="tel">
+      <label class="glabel">Contraseña (mín. 6)</label>
+      <input class="ginput" id="rgPass" type="password" placeholder="••••••••" autocomplete="new-password">
+      <label class="glabel">Repite la contraseña</label>
+      <input class="ginput" id="rgPass2" type="password" placeholder="••••••••" autocomplete="new-password">
+      <button class="gbtn" onclick="doRegister()">CREAR PERFIL</button>
+      <div class="grow" style="justify-content:center"><span class="glink gold" onclick="showAuth('authLogin')">← Volver a entrar</span></div>
+      <div class="gmsg" id="rgMsg"></div>
+    </div>
+    <!-- OLVIDO -->
+    <div id="authOlvido" style="display:none">
+      <div class="gtitle">RESTABLECER</div>
+      <div class="note" style="color:rgba(242,245,248,.7);text-align:center;margin-bottom:8px">Se envía un aviso al <b style="color:#FFB000">Admin</b>, quien te contactará y te pondrá una contraseña nueva.</div>
+      <label class="glabel">Usuario</label>
+      <input class="ginput" id="olNom" placeholder="tu nombre de perfil">
+      <label class="glabel">Correo o teléfono de contacto</label>
+      <input class="ginput" id="olCon" placeholder="para que el Admin te escriba">
+      <button class="gbtn" onclick="doForgot()">NOTIFICAR AL ADMIN</button>
+      <div class="grow" style="justify-content:center"><span class="glink gold" onclick="showAuth('authLogin')">← Volver a entrar</span></div>
+      <div class="gmsg" id="olMsg"></div>
     </div>
   </div>
 </div>
-
 <header>
   <div class="brand">💰 Mi Plata<small id="profLine">escribe · planea los meses que vienen · cierra y mira tu futuro</small></div>
   <div class="monthNav">
@@ -339,6 +404,14 @@ tr.carryrow td{background:var(--carrybg)}
         <tbody></tbody></table></div>
       <div class="note" id="admMsg"></div>
       <div class="note">Los nombres se guardan <b>cifrados (AES-GCM)</b> y las contraseñas <b>hasheadas con salt</b>; nadie (ni el storage público) puede leerlos. Cambiar una contraseña cierra las sesiones de ese perfil.</div>
+    </div>
+  </div>
+  <div class="card"><h3 class="h-hor">🔑 Solicitudes de restablecimiento <span class="sub">“olvidé mi contraseña” de los usuarios</span></h3>
+    <div class="body">
+      <div class="scroll" style="max-height:200px"><table id="tblReq">
+        <thead><tr><th>Perfil</th><th>Cuándo</th><th>Contacto</th><th>Acciones</th></tr></thead>
+        <tbody></tbody></table></div>
+      <div class="note">Cambia su contraseña con 🔑 en la tabla de perfiles y descarta la solicitud con ✕.</div>
     </div>
   </div>
 </section>
@@ -1244,39 +1317,58 @@ function startApp(sess){
   paintSync();
 }
 let SESS=null, pendingReset=false;
+const SESSION="miplata.session";
+const sstore={get(k){try{return sessionStorage.getItem(k);}catch(e){return null;}},set(k,v){try{sessionStorage.setItem(k,v);}catch(e){}},del(k){try{sessionStorage.removeItem(k);}catch(e){}}};
 const apiUsers=o=>fetch("api/users",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(o),cache:"no-store"}).then(r=>r.json().then(j=>({r,j})));
-function showLogin(msg){ $("loginView").style.display="flex"; $("lgMsg").textContent=msg||""; }
+const okMail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+const okTel=v=>/^[+]?[0-9][0-9\s-]{6,18}$/.test(v);
+const msg=(id,t)=>{ const e=$(id); if(e) e.textContent=t||""; };
+function showAuth(v){ ["authLogin","authReg","authOlvido"].forEach(id=>{ const e=$(id); if(e) e.style.display=id===v?"block":"none"; }); msg("lgMsg");msg("rgMsg");msg("olMsg"); }
+function showLogin(m){ $("loginView").style.display="flex"; showAuth("authLogin"); if(m)msg("lgMsg",m); }
 async function doLogin(){
   const nom=$("lgNom").value.trim(), pass=$("lgPass").value;
-  if(!nom||!pass) return showLogin("Escribe nombre y contraseña.");
-  let res; try{ res=await apiUsers({action:"login",nombre:nom,pass}); }catch(e){ return showLogin("⚠️ No alcanzo la nube. Usa «Continuar sin perfil» o revisa tu conexión."); }
-  if(res.r.status===403) return showLogin("🚫 Perfil bloqueado: consulta al Admin.");
-  if(res.r.status===404) return showLogin("Ese perfil no existe aún: créalo con «Crear perfil».");
-  if(res.r.status===401) return showLogin("Contraseña incorrecta para "+nom+".");
+  if(!nom||!pass) return showLogin("Escribe usuario y contraseña.");
+  let res; try{ res=await apiUsers({action:"login",nombre:nom,pass}); }catch(e){ return showLogin("⚠️ No alcanzo la nube. Usa «continuar sin perfil» o revisa tu conexión."); }
+  if(res.r.status===403) return showLogin("🚫 Perfil bloqueado: escribe al Admin.");
+  if(res.r.status===404) return showLogin("Ese perfil no existe aún: créalo con «Crear cuenta».");
+  if(res.r.status===401) return showLogin("Contraseña incorrecta.");
   if(res.r.status!==200) return showLogin("Error: "+(res.j.error||res.r.status));
   const sess={uid:res.j.perfil.id,nombre:res.j.perfil.nombre,token:res.j.token,role:res.j.perfil.role};
-  store.set("miplata.session",JSON.stringify(sess));
+  const st=($("lgRec")&&$("lgRec").checked)? store : sstore;
+  st.set(SESSION,JSON.stringify(sess));
   if(pendingReset){ pendingReset=false; store.set("miplata.v3."+sess.uid,""); store.set("miplata.v3."+sess.uid+".updated",""); }
   startApp(sess);
 }
 async function doRegister(){
-  const nom=$("lgNom").value.trim(), pass=$("lgPass").value;
-  if(!nom||!pass) return showLogin("Elige nombre y contraseña: solo se pedirá en dispositivos nuevos.");
-  let res; try{ res=await apiUsers({action:"register",nombre:nom,pass}); }catch(e){ return showLogin("⚠️ No alcanzo la nube para crear el perfil."); }
-  if(res.r.status===409) return showLogin("Ese nombre ya existe: entra con su contraseña.");
-  if(res.r.status!==200) return showLogin("Error: "+(res.j.error||res.r.status));
-  flash("🎉 Perfil creado: ahora entra con tu contraseña.");
-  doLogin();
+  const nom=$("rgNom").value.trim(), mail=$("rgMail").value.trim(), tel=$("rgTel").value.trim();
+  const p1=$("rgPass").value, p2=$("rgPass2").value;
+  if(nom.length<3) return msg("rgMsg","El usuario debe tener al menos 3 caracteres.");
+  if(!okMail(mail)) return msg("rgMsg","Correo inválido (ej. nombre@dominio.com).");
+  if(!okTel(tel)) return msg("rgMsg","Teléfono inválido (ej. +57 300 1234567).");
+  if(p1.length<6) return msg("rgMsg","La contraseña debe tener al menos 6 caracteres.");
+  if(p1!==p2) return msg("rgMsg","Las contraseñas no coinciden.");
+  let res; try{ res=await apiUsers({action:"register",nombre:nom,pass:p1,email:mail,tel:tel}); }catch(e){ return msg("rgMsg","⚠️ No alcanzo la nube para crear el perfil."); }
+  if(res.r.status===409) return msg("rgMsg","Ese usuario ya existe: entra con su contraseña.");
+  if(res.r.status!==200) return msg("rgMsg","⚠️ "+(res.j.error||res.r.status));
+  $("lgNom").value=nom; $("lgPass").value="";
+  showLogin("✅ Perfil creado y cifrado: entra con tu contraseña.");
+}
+async function doForgot(){
+  const nom=$("olNom").value.trim(), con=$("olCon").value.trim();
+  if(!nom) return msg("olMsg","Escribe tu usuario.");
+  let res; try{ res=await apiUsers({action:"forgot",nombre:nom,contacto:con||nom}); }catch(e){ return msg("olMsg","⚠️ No alcanzo la nube."); }
+  if(res.r.status===404) return msg("olMsg","Ese usuario no existe.");
+  msg("olMsg","📮 Aviso enviado al Admin: te contactará para restablecerla.");
 }
 function doLocal(){
   const nom=$("lgNom").value.trim()||"Local";
   const sess={uid:"local-"+Math.random().toString(36).slice(2,8),nombre:nom,h:"local",token:"",role:"user"};
-  store.set("miplata.session",JSON.stringify(sess)); startApp(sess);
+  store.set(SESSION,JSON.stringify(sess)); startApp(sess);
   flash("⚠️ Perfil solo-en-este-dispositivo: no se sincroniza con la nube.");
 }
-function doLogout(){ store.set("miplata.session",""); location.reload(); }
+function doLogout(){ store.set(SESSION,""); sstore.del(SESSION); location.reload(); }
 async function authBoot(){
-  const sess=JSON.parse(store.get("miplata.session")||"null");
+  const sess=JSON.parse(store.get(SESSION)||sstore.get(SESSION)||"null");
   if(sess&&sess.uid){
     if(sess.token){
       try{ const {r,j}=await apiUsers({action:"who",token:sess.token});
@@ -1293,6 +1385,9 @@ const admApi=o=>apiUsers(Object.assign({token:SESS?SESS.token:""},o));
 async function admLoad(){
   const {r,j}=await admApi({action:"list"});
   if(!r.ok){ $("admMsg").textContent="⚠️ "+(j.error||"error"); return; }
+  $("tblReq").tBodies[0].innerHTML=(j.requests||[]).map(q=>`<tr><td><b>${esc(q.nombre)}</b></td><td class="mini-lbl">${new Date(q.ts).toLocaleDateString()} ${new Date(q.ts).toLocaleTimeString().slice(0,5)}</td><td>${esc(q.contacto)}</td>
+    <td style="white-space:nowrap"><button class="mini" title="Nueva contraseña" onclick="admPass('${q.uid}')">🔑</button> <button class="mini danger" title="Descartar" onclick="admDelReq('${q.id}')">✕</button></td></tr>`).join("")
+    ||`<tr><td colspan="4" class="mini-lbl">Sin solicitudes por ahora.</td></tr>`;
   $("tblAdm").tBodies[0].innerHTML=j.users.map(u=>`<tr>
     <td><b>${esc(u.nombre)}</b></td><td>${u.role==="admin"?"🛡 Admin":"usuario"}</td><td>${u.blocked?"🚫 bloqueado":"✅ activo"}</td>
     <td style="white-space:nowrap">${u.role==="admin"?"<span class=\'mini-lbl\'>cuenta maestra</span>":`<button class="mini" title="Renombrar" onclick="admRename('${u.id}')">✏️</button> <button class="mini" title="Nueva contraseña" onclick="admPass('${u.id}')">🔑</button> <button class="mini" title="${u.blocked?"Desbloquear":"Bloquear"}" onclick="admBlock('${u.id}',${!u.blocked})">${u.blocked?"▶":"⏸"}</button> <button class="mini danger" title="Eliminar" onclick="admDel('${u.id}')">✕</button>`}</td></tr>`).join("");
@@ -1308,6 +1403,7 @@ async function admRename(id){ const v=prompt("Nuevo nombre del perfil:"); if(!v)
 async function admPass(id){ const v=prompt("Nueva contraseña (esto cierra sus sesiones actuales):"); if(!v)return; const {r,j}=await admApi({action:"setpass",id,pass:v}); $("admMsg").textContent=r.ok?"🔑 Contraseña actualizada.":"⚠️ "+(j.error||""); }
 async function admBlock(id,b){ const {r,j}=await admApi({action:"setblock",id,blocked:b}); $("admMsg").textContent=r.ok?(b?"🚫 Perfil bloqueado.":"▶ Perfil reactivado."):"⚠️ "+(j.error||""); admLoad(); }
 async function admDel(id){ if(!confirm("¿Eliminar el perfil? Sus datos en la nube quedan huérfanos (puedo podarlos después)."))return; const {r,j}=await admApi({action:"delete",id}); $("admMsg").textContent=r.ok?"🗑 Perfil eliminado.":"⚠️ "+(j.error||""); admLoad(); }
+async function admDelReq(id){ await admApi({action:"delreq",id}); admLoad(); }
 authBoot();
 </script>
 </body>

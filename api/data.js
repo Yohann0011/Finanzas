@@ -1,7 +1,7 @@
 // Estado financiero por perfil, protegido por token de sesion (o Admin).
 // GET  /api/data?u=<uid>  con header x-token
 // PUT  /api/data?u=<uid>  con header x-token
-import { USERS, tokenHash, readJson, writeJson } from "./lib.js";
+import { USERS, sha256hex, tokenHash, readJson, writeJson } from "./lib.js";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -10,6 +10,7 @@ export default async function handler(req, res) {
     const url = new URL(req.url, "http://local");
     const u = (url.searchParams.get("u") || "").match(/^[a-z0-9-]{1,40}$/);
     const PREFIX = u ? "miplata-u-" + u[0] + "-" : "miplata-v1-";
+    // autorizacion: token de sesion del dueno del perfil (o Admin)
     const tok = req.headers["x-token"] || "";
     if (tok && u) {
       const reg = (await readJson(sdk, USERS)) || { users: [] };
