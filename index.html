@@ -1,8 +1,9 @@
+
 <!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0A0A0C">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Mi Plata · Control de gastos y ahorro</title>
@@ -146,11 +147,15 @@ body[data-theme="dark"] .glass{border-color:rgba(255,176,0,.42);box-shadow:0 24p
 [data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"],[data-theme="realeza"],[data-theme="navy"] .chartBox{border-color:var(--line)}
 [data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"],[data-theme="realeza"],[data-theme="navy"] .grip{color:var(--soft)}
 html[data-theme="dark"],html[data-theme="noche"],html[data-theme="esmeralda"],html[data-theme="vino"],html[data-theme="realeza"],html[data-theme="navy"]{color-scheme:dark}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html,body{overflow-x:hidden;max-width:100%}
+body{overscroll-behavior-x:contain}
+.scroll,.actions,.tabs{max-width:100%}
+.note,.sema,.mini-lbl{overflow-wrap:anywhere}
 html,body{margin:0;padding:0}
 body{font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);background:radial-gradient(1000px 520px at 10% -10%, var(--glow1,transparent) 0%, transparent 60%),radial-gradient(820px 520px at 106% 112%, var(--glow2,transparent) 0%, transparent 62%),var(--bg);background-attachment:fixed}
 html{color-scheme:light}
-button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:8px 12px;background:var(--btn);color:var(--ink)}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:9px 14px;background:var(--btn);color:var(--ink)}
 button:hover{filter:brightness(.96)}
 button:disabled{opacity:.4;cursor:not-allowed}
 button.primary{background:var(--teal);color:#fff;font-weight:600}
@@ -163,14 +168,14 @@ button.save.dirty{background:var(--gold);color:#fff;animation:pulse 1.4s infinit
 input,select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);width:100%}
 input[type=number]{text-align:right}
 input:focus,select:focus{outline:2px solid #bcd8d1;border-color:var(--teal)}
-header{position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:var(--glass,var(--card));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--glassbd,var(--line));box-shadow:var(--sh)}
-.brand{font-size:18px;font-weight:800;color:var(--brand);letter-spacing:.3px}
-.brand small{display:block;font-size:11px;color:var(--soft);font-weight:500}
-.monthNav{display:flex;align-items:center;gap:8px}
-.monthNav span{min-width:190px;text-align:center;font-weight:700;font-size:15px}
-.monthNav .pillM{display:block;font-size:10px;font-weight:800;letter-spacing:.4px}
+header{position:sticky;top:0;left:0;right:0;width:100%;z-index:30;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:calc(13px + env(safe-area-inset-top)) 20px 13px;min-height:66px;background:var(--glass,var(--card));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--glassbd,var(--line));box-shadow:var(--sh)}
+.brand{font-size:21px;font-weight:800;color:var(--brand);letter-spacing:.3px}
+.brand small{display:block;font-size:11.5px;color:var(--soft);font-weight:500}
+.monthNav{display:flex;align-items:center;gap:8px;flex:1;justify-content:center}
+.monthNav span{min-width:216px;text-align:center;font-weight:800;font-size:16.5px;letter-spacing:.3px}
+.monthNav .pillM{display:block;font-size:10.5px;font-weight:800;letter-spacing:.5px}
 .pillM.abierto{color:var(--teal)} .pillM.futuro{color:var(--gold)}
-.actions{display:flex;gap:6px;flex-wrap:wrap}
+.actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
 .tabs{display:flex;gap:6px;padding:10px 16px 0}
 @supports not (backdrop-filter:blur(2px)){ .card,header,.view,.kpi,.chartBox{background:var(--card)!important} }
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
@@ -225,14 +230,15 @@ tfoot td{font-weight:700;border-top:2px solid var(--line)}
 .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 @media(max-width:520px){.kpis{grid-template-columns:repeat(2,1fr)} .kpi .v{font-size:14px} .kpis{gap:6px}}
 @media(max-width:640px){
-  header{gap:6px;padding-left:10px;padding-right:10px}
-  .brand{font-size:16px}
+  header{gap:8px;padding-left:12px;padding-right:12px;min-height:0;padding-top:calc(11px + env(safe-area-inset-top));padding-bottom:11px}
+  .brand{font-size:17.5px;order:1}
   .brand small{font-size:10px}
-  .monthNav span{min-width:128px;font-size:13px}
-  .monthNav button{padding:6px 9px}
-  .actions{width:100%;justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px;scrollbar-width:none}
+  .actions{order:2;margin-left:auto;justify-content:flex-end;overflow-x:auto;flex-wrap:nowrap;max-width:64%;padding-bottom:2px;scrollbar-width:none}
   .actions::-webkit-scrollbar{display:none}
-  .actions button{flex:0 0 auto;padding:7px 10px;font-size:12px}
+  .actions button{flex:0 0 auto;padding:8px 11px;font-size:12.5px}
+  .monthNav{order:3;width:100%;flex:none;justify-content:space-between;gap:8px}
+  .monthNav span{min-width:0;flex:1;font-size:15px}
+  .monthNav button{padding:8px 14px;font-size:15px}
   .tabs{overflow-x:auto;flex-wrap:nowrap;padding:8px 10px 0;scrollbar-width:none}
   .tabs::-webkit-scrollbar{display:none}
   .tabs button{flex:0 0 auto;padding:7px 12px;font-size:12px}
@@ -1525,6 +1531,12 @@ function doLocal(){
   flash("⚠️ Perfil solo-en-este-dispositivo: no se sincroniza con la nube.");
 }
 function doLogout(){ store.set(SESSION,""); sstore.del(SESSION); location.reload(); }
+/* ---- movil: sin zoom (pinch, doble tap, gestos iOS) ---- */
+document.addEventListener("gesturestart",e=>e.preventDefault());
+document.addEventListener("gesturechange",e=>e.preventDefault());
+document.addEventListener("gestureend",e=>e.preventDefault());
+document.addEventListener("touchmove",e=>{ if(e.touches&&e.touches.length>1) e.preventDefault(); },{passive:false});
+document.addEventListener("dblclick",e=>{ if(!e.target.closest("input,select,textarea")) e.preventDefault(); });
 async function authBoot(){
   const sess=JSON.parse(store.get(SESSION)||sstore.get(SESSION)||"null");
   if(sess&&sess.uid){
