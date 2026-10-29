@@ -10,8 +10,9 @@ export async function sha256hex(t) {
   return [...new Uint8Array(d)].map(x => x.toString(16).padStart(2, "0")).join("");
 }
 async function aesKey() {
-  const secret = await sha256hex(process.env.MIPLATA_SECRET || "miplata-default-v1");
-  return crypto.subtle.importKey("raw", enc.encode(secret), { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
+  // clave AES-256: los 32 bytes CRUDOS del digest (no el hex de 64 caracteres)
+  const raw = await crypto.subtle.digest("SHA-256", enc.encode(process.env.MIPLATA_SECRET || "miplata-default-v1"));
+  return crypto.subtle.importKey("raw", raw, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
 }
 export async function encStr(s) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
