@@ -1,82 +1,75 @@
-// API de sincronizacion Mi Plata (version final): Blob publico o privado + Redis/KV.
-// GET  /api/data -> { updatedAt, state } | null
-// PUT  /api/data <- { updatedAt, state }
-const CLAVE = "miplata-v1";
+// API Mi Plata multi-perfil: estado aislado por usuario + registro de perfiles.
+// GET  /api/data?u=<uid>  -> { updatedAt, state } | null   (estado del perfil)
+// PUT  /api/data?u=<uid>  <- { updatedAt, state }
+// GET  /api/users         -> { users:[{id,nombre,hash}] }
+// POST /api/users         <- { id, nombre, hash }  (registra perfil nuevo)
+const USERS = "miplata-users-";
 
-const upstashVars = () =>
-  (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN)
-    ? [process.env.KV_REST_API_URL, process.env.KV_REST_API_TOKEN]
-    : (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
-      ? [process.env.UPSTASH_REDIS_REST_URL, process.env.UPSTASH_REDIS_REST_TOKEN]
-      : null;
-
-async function getUpstash([url, token]) {
-  const r = await fetch(url + "/get/" + encodeURIComponent(CLAVE), { headers: { Authorization: "Bearer " + token }, cache: "no-store" });
-  const j = await r.json();
-  if (!j.result) return null;
-  return typeof j.result === "string" ? JSON.parse(j.result) : j.result;
+async function latest(sdk, prefix) {
+  const l = await sdk.list({ prefix });
+  return (l.blobs || []).sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt))[0] || null;
 }
-async function setUpstash([url, token], value) {
-  const r = await fetch(url + "/set", {
-    method: "POST",
-    headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
-    body: JSON.stringify([CLAVE, value]),
-  });
-  if (!r.ok) throw new Error("upstash set " + r.status);
+async function readJson(sdk, prefix) {
+  const b = await latest(sdk, prefix);
+  if (!b) return null;
+  try { const r = await fetch(b.url, { cache: "no-store" }); if (r.ok) return await r.json(); } catch (e) {}
+  try { const r = await sdk.get(b.pathname, { access: "public" }); if (r && r.statusCode === 200 && r.stream) return JSON.parse(await new Response(r.stream).text()); } catch (e) {}
+  const r2 = await sdk.get(b.pathname, { access: "private" });
+  return (r2 && r2.statusCode === 200 && r2.stream) ? JSON.parse(await new Response(r2.stream).text()) : null;
 }
-
-// ---- Blob: un archivo nuevo por guardado (marca de tiempo), se leen los 5 ultimos
-async function latestBlobList(sdk) {
-  const l = await sdk.list({ prefix: CLAVE + "-" });
-  return (l.blobs || []).sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
-}
-async function leerJson(r) {
-  if (!r || r.statusCode !== 200 || !r.stream) return null;
-  return JSON.parse(await new Response(r.stream).text());
-}
-async function getBlob() {
-  const sdk = await import("@vercel/blob");
-  const latest = (await latestBlobList(sdk))[0] || null;
-  if (!latest) return null;
-  try { const r = await fetch(latest.url, { cache: "no-store" }); if (r.ok) return await r.json(); } catch (e) {}
-  try { const r = await leerJson(await sdk.get(latest.pathname, { access: "public" })); if (r) return r; } catch (e) {}
-  return await leerJson(await sdk.get(latest.pathname, { access: "private" }));
-}
-async function setBlob(value) {
-  const sdk = await import("@vercel/blob");
-  const nombre = CLAVE + "-" + Date.now() + ".json";
+async function writeJson(sdk, prefix, value) {
+  const nombre = prefix + Date.now() + ".json";
   const cuerpo = JSON.stringify(value);
-  try {
-    await sdk.put(nombre, cuerpo, { addRandomSuffix: false, access: "public" });
-  } catch (e) {
+  try { await sdk.put(nombre, cuerpo, { addRandomSuffix: false, access: "public" }); }
+  catch (e) {
     if (/access/i.test(String(e && e.message))) await sdk.put(nombre, cuerpo, { addRandomSuffix: false, access: "private" });
     else throw e;
   }
   try {
-    const old = (await latestBlobList(sdk)).slice(5);
+    const l = await sdk.list({ prefix });
+    const old = (l.blobs || []).sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt)).slice(5);
     if (old.length) await sdk.del(old.map(b => b.pathname));
-  } catch (e) { /* limpieza opcional */ }
+  } catch (e) {}
 }
-
-const provider = () => (process.env.BLOB_READ_WRITE_TOKEN ? "blob" : (upstashVars() ? "redis" : null));
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   const SIN = { error: "Sin almacenamiento conectado: en Vercel crea Storage (Blob o Redis) y conectalo a este proyecto." };
   try {
+    const url = new URL(req.url, "http://local");
+    const sdk = await import("@vercel/blob");
+
+    // ---- registro de perfiles
+    if (url.pathname.endsWith("/api/users")) {
+      if (req.method === "GET") {
+        const d = await readJson(sdk, USERS);
+        return res.status(200).json(d || { users: [] });
+      }
+      if (req.method === "POST" || req.method === "PUT") {
+        let b = req.body; if (typeof b === "string") b = JSON.parse(b);
+        if (!b || !b.id || !b.nombre || !b.hash) return res.status(400).json({ error: "datos incompletos" });
+        const reg = (await readJson(sdk, USERS)) || { users: [] };
+        if (reg.users.some(u => u.nombre.toLowerCase() === String(b.nombre).toLowerCase()))
+          return res.status(409).json({ error: "ese nombre de perfil ya existe" });
+        reg.users.push({ id: String(b.id).slice(0, 24), nombre: String(b.nombre).slice(0, 40), hash: String(b.hash).slice(0, 80) });
+        reg.updatedAt = Date.now();
+        await writeJson(sdk, USERS, reg);
+        return res.status(200).json({ ok: true });
+      }
+      return res.status(405).json({ error: "método no permitido" });
+    }
+
+    // ---- estado por perfil
+    const u = (url.searchParams.get("u") || "").match(/^[a-z0-9-]{1,40}$/);
+    const PREFIX = u ? "miplata-u-" + u[0] + "-" : "miplata-v1-";
     if (req.method === "GET") {
-      const p = provider();
-      if (!p) return res.status(503).json(SIN);
-      const d = p === "blob" ? await getBlob() : await getUpstash(upstashVars());
+      const d = await readJson(sdk, PREFIX);
       return res.status(200).json(d || null);
     }
     if (req.method === "PUT" || req.method === "POST") {
-      let b = req.body;
-      if (typeof b === "string") b = JSON.parse(b);
+      let b = req.body; if (typeof b === "string") b = JSON.parse(b);
       if (!b || !b.state || !b.state.abierto) return res.status(400).json({ error: "estado inválido" });
-      const p = provider();
-      if (!p) return res.status(503).json(SIN);
-      if (p === "blob") await setBlob(b); else await setUpstash(upstashVars(), b);
+      await writeJson(sdk, PREFIX, b);
       return res.status(200).json({ ok: true, updatedAt: b.updatedAt });
     }
     return res.status(405).json({ error: "método no permitido" });

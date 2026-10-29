@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="es">
 <head>
@@ -27,26 +26,54 @@
   --brand:#FFB000; --flashbg:#2b2205; --flashfg:#F2F5F8; --thumb:#3B3F4A;
   --sh:0 4px 18px rgba(0,0,0,.65);
 }
-[data-theme="dark"] .sema{color:#0A0A0C}
-[data-theme="dark"] .sema .big,[data-theme="dark"] .sema ul{color:#0A0A0C}
-/* ---- modo oscuro premium: negro + oro ---- */
-[data-theme="dark"] body{background:radial-gradient(1100px 520px at 85% -5%, #241c06 0%, #0a0a0d 60%) fixed,var(--bg)}
-[data-theme="dark"] .card>h3{background:linear-gradient(90deg,#241c06,#120e04)!important;color:#FFC53D!important;border-bottom:1px solid #4a3b12}
-[data-theme="dark"] button.primary,[data-theme="dark"] button.mini.primary{background:linear-gradient(135deg,#FFB000,#FFC53D);color:#141419}
-[data-theme="dark"] button.save.dirty{color:#141419}
-[data-theme="dark"] .tabs button.on{color:#FFC53D}
-[data-theme="dark"] .bar i{background:linear-gradient(90deg,#CC8C00,#FFC53D)}
-[data-theme="dark"] input:focus,[data-theme="dark"] select:focus{outline-color:#FFB000;border-color:#FFB000}
-[data-theme="dark"] .sema{box-shadow:inset 0 0 0 1px rgba(240,199,94,.28)}
-[data-theme="dark"] .pill{background:#24242e;color:#c9c0ae}
-[data-theme="dark"] .kpi{border-color:#3B3F4A}
-[data-theme="dark"] .chartBox{border-color:#3B3F4A}
-[data-theme="dark"] .grip{color:#3B3F4A}
+[data-theme="noche"]{
+  --bg:#101418; --card:#1b232c; --ink:#e8edf2; --soft:#93a1b0;
+  --teal:#2fbf9f; --teal-d:#7fd6c2; --gold:#e8b64c; --coral:#f07a5f;
+  --blue:#6fa3d8; --plum:#b193d8; --pink:#e07aa8; --line:#2a3542; --ok:#4cd69a; --warn:#e8b64c; --bad:#f07a5f;
+  --kpi:#202a35; --head:#232e3a; --btn:#242e39; --field:#202a35; --hover:#232d38;
+  --line2:#242e39; --savebg:#123b33; --savefg:#7fd6c2; --danbg:#3a2020; --danfg:#f07a5f;
+  --planbg:#33290f; --planbd:#5c4a1e; --plantx:#e8c76a; --carrybg:#12302a; --okbg:#12382a;
+  --brand:#7fd6c2; --flashbg:#0f2f28; --flashfg:#d9fef2; --thumb:#3b4a5a;
+  --sh:0 2px 12px rgba(0,0,0,.45);
+}
+[data-theme="esmeralda"]{
+  --bg:#06100c; --card:#0d1a14; --ink:#e9f5ee; --soft:#8fa89a;
+  --teal:#2fbf9f; --teal-d:#7fe0c3; --gold:#ffd34d; --coral:#ff6b6b;
+  --blue:#7fb8a4; --plum:#bfe0cf; --pink:#ffd34d; --line:#1e3a2d; --ok:#3dd68c; --warn:#ffd34d; --bad:#ff6b6b;
+  --kpi:#12241b; --head:#163024; --btn:#163024; --field:#12241b; --hover:#1a3829;
+  --line2:#163024; --savebg:#123b33; --savefg:#7fe0c3; --danbg:#33201f; --danfg:#ff8a8a;
+  --planbg:#2b2205; --planbd:#57451a; --plantx:#ffd34d; --carrybg:#12302a; --okbg:#0f2f22;
+  --brand:#7fe0c3; --flashbg:#0f2f22; --flashfg:#e9f5ee; --thumb:#1e3a2d;
+  --sh:0 4px 16px rgba(0,0,0,.55);
+}
+[data-theme="vino"]{
+  --bg:#120a0d; --card:#1e141a; --ink:#f2e8ec; --soft:#a8939c;
+  --teal:#e08ab8; --teal-d:#f0b6d2; --gold:#ffb000; --coral:#ff6b6b;
+  --blue:#b48ead; --plum:#d8b4e2; --pink:#e895c8; --line:#3a2a33; --ok:#ffb000; --warn:#ffd34d; --bad:#ff6b6b;
+  --kpi:#271a22; --head:#302029; --btn:#302029; --field:#271a22; --hover:#382630;
+  --line2:#302029; --savebg:#332b12; --savefg:#ffb000; --danbg:#33201f; --danfg:#ff8a8a;
+  --planbg:#2b2205; --planbd:#57451a; --plantx:#ffb000; --carrybg:#20261c; --okbg:#2b2205;
+  --brand:#f0b6d2; --flashbg:#302029; --flashfg:#f2e8ec; --thumb:#3a2a33;
+  --sh:0 4px 16px rgba(0,0,0,.55);
+}
+/* ---- temas oscuros: reglas comunes (cada tema pone sus variables) ---- */
+[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] body{background:radial-gradient(1100px 520px at 85% -5%, var(--head) 0%, var(--bg) 60%) fixed,var(--bg)}
+[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] .card>h3{background:linear-gradient(90deg,var(--head),var(--card))!important;color:var(--brand)!important;border-bottom:1px solid var(--line)}
+[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] button.primary,[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] button.mini.primary{background:linear-gradient(135deg,var(--teal),var(--gold));color:var(--bg)}
+[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] button.save.dirty{color:var(--bg)}
+[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] .tabs button.on{color:var(--brand)}
+[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] .bar i{background:linear-gradient(90deg,var(--teal),var(--gold))}
+[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] input:focus,[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] select:focus{outline-color:var(--teal);border-color:var(--teal)}
+[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] .sema,[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] .sema .big,[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] .sema ul{color:var(--bg)}
+[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] .pill{background:var(--line2);color:var(--ink)}
+[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] .kpi{border-color:var(--line)}
+[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] .chartBox{border-color:var(--line)}
+[data-theme="dark"],[data-theme="noche"],[data-theme="esmeralda"],[data-theme="vino"] .grip{color:var(--soft)}
+html[data-theme="dark"],html[data-theme="noche"],html[data-theme="esmeralda"],html[data-theme="vino"]{color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink)}
 html{color-scheme:light}
-html[data-theme="dark"]{color-scheme:dark}
 button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:8px 12px;background:var(--btn);color:var(--ink)}
 button:hover{filter:brightness(.96)}
 button:disabled{opacity:.4;cursor:not-allowed}
@@ -136,9 +163,24 @@ tr.carryrow td{background:var(--carrybg)}
 </style>
 </head>
 <body>
+<div id="loginView" style="position:fixed;inset:0;z-index:80;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px">
+  <div class="card" style="max-width:400px;width:100%;margin:0">
+    <h3 class="h-dash">🔐 Mi Plata · perfiles</h3>
+    <div class="body">
+      <label class="mini-lbl">Nombre del perfil</label>
+      <input id="lgNom" placeholder="ej. Yohann, Ari, familia…" autocomplete="username">
+      <label class="mini-lbl" style="display:block;margin-top:8px">Contraseña</label>
+      <input id="lgPass" type="password" placeholder="••••••" autocomplete="current-password">
+      <div class="rowAdd" style="margin-top:10px"><button class="mini primary" onclick="doLogin()">Entrar</button><button class="mini" onclick="doRegister()">Crear perfil</button></div>
+      <div class="rowAdd"><button class="mini" onclick="doLocal()">Continuar sin perfil (solo este dispositivo)</button></div>
+      <div class="note" id="lgMsg" style="color:var(--bad)"></div>
+      <div class="note">Cada perfil ve <b>solo sus propios datos</b>, en la nube y en cada dispositivo donde entre. Este dispositivo queda <b>recordado</b>: no pedirá contraseña de nuevo hasta que pulses 🚪. Si es tu primera vez aquí, crea el perfil con el mismo nombre y contraseña que usaste en tu otro dispositivo y tus datos aparecerán solos.</div>
+    </div>
+  </div>
+</div>
 
 <header>
-  <div class="brand">💰 Mi Plata<small>escribe · planea los meses que vienen · cierra y mira tu futuro</small></div>
+  <div class="brand">💰 Mi Plata<small id="profLine">escribe · planea los meses que vienen · cierra y mira tu futuro</small></div>
   <div class="monthNav">
     <button id="prevM" title="Mes anterior">◀</button>
     <span id="monthLabel">—<span class="pillM" id="monthPill"></span></span>
@@ -146,7 +188,8 @@ tr.carryrow td{background:var(--carrybg)}
   </div>
   <div class="actions">
     <button id="btnCerrar" class="primary">🔒 Cerrar mes → historial</button>
-    <button id="btnTema" title="Cambiar tema">🌙</button>
+    <button id="btnSal" title="Cerrar sesión en este dispositivo" onclick="doLogout()">🚪</button>
+    <button id="btnTema" title="Temas de color (se guarda por perfil)">🎨</button><div id="themeMenu" class="card" style="display:none;position:fixed;z-index:60;top:52px;right:12px;max-width:230px;margin:0"><div class="body" style="padding:6px" id="themeOpts"></div></div>
     <button id="btnSync" title="Sincronizar entre dispositivos">☁️</button>
     <button id="btnExport" title="Descarga un respaldo .json">⬇ Respaldo</button>
     <button id="btnImport" title="Restaura un respaldo">⬆ Importar</button>
@@ -316,6 +359,7 @@ tr.carryrow td{background:var(--carrybg)}
       <li><b>Ingresos extra recurrentes:</b> agréguelos una vez con <b>+ Recurrente 🔁</b> y se suman solos cada mes; cuando dejen de aplicarse, pulsa el botón 🔁 del ítem y se detiene desde ese mes (el pasado no se toca).</li>
       <li><b>Créditos sin configurar tasas:</b> tú solo escribes lo que dice el banco (<b>Saldo según banco</b>) y lo que vas a pagar (<b>Pago</b>); el pago se resta del mes <b>siguiente</b> y el interés de cada mes se calcula sobre el saldo ya descontado. La <b>tasa implícita se deduce sola</b> comparando un mes con el siguiente y con ella se proyectan los meses futuros. Además puedes tener <b>varios ingresos fijos</b> y eliminarlos con ✕.</li>
       <li><b>Sobrante que rueda:</b> lo que te queda libre en un mes pasa automáticamente como ingreso del mes siguiente (fila verde 🔁 en Ingresos), y si editas algo de un mes, toda la cadena futura se recalcula al instante. El <b>ahorro</b> descuenta al instante: de lo disponible, del sobrante y del faltante de la meta.</li>
+      <li><b>Temas por perfil:</b> con 🎨 eliges entre Claro, Oro negro, Noche turquesa, Esmeralda y Vino & oro; tu elección se guarda <b>para tu perfil</b> en cada dispositivo (otra persona puede tener el suyo distinto en el mismo aparato).</li>
       <li><b>Metas completadas:</b> al llegar al 100% la meta se pinta verde 🎉, se bloquea y, desde el mes siguiente, desaparece de la lista activa pero queda en el <b>registro de metas completadas</b> con su mes de cierre.</li>
       <li><b>Deuda que se resta sola:</b> cada cuota que pagas o planeas descuenta la <b>deuda final</b> de ese mes: el panel muestra la deuda a fin de mes, el historial resta solo cuotas y abonos mes a mes, y la predicción simula tu plan de pagos para decirte cuándo quedas libre.</li>
       <li><b>Mira tu panel:</b> KPIs, semáforo, 6 gráficas y la predicción a 6/12 meses y meses para quedar libre de deuda.</li>
@@ -333,7 +377,7 @@ tr.carryrow td{background:var(--carrybg)}
 "use strict";
 const MEM={};
 const store={get(k){try{return localStorage.getItem(k);}catch(e){return MEM[k]||null;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){MEM[k]=v;}}};
-const KEY="miplata.v2";
+let KEY="miplata.v2"; let UID=null; const updKey=()=>KEY+".updated";
 const fmt=new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0});
 const F=v=>fmt.format(Math.round(v||0));
 const privOn=()=>store.get("miplata.priv")==="1";
@@ -354,9 +398,12 @@ let LISTAS={
   medios:["Efectivo o débito","Crédito"],
   ciclos:["Mensual","Trimestral","Semestral","Anual"],
 };
-const RESPALDO_BASE = {"abierto": "2026-10", "mes": "2026-10", "ingFijo": 2900000, "fijos": [{"id": "1s64ncp", "c": "Servicios Luz", "v": 150000, "cat": "Servicios", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "di52jw6", "c": "Servicio Agua", "v": 100000, "cat": "Servicios", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "vh6o36e", "c": "Plan celular", "v": 60000, "cat": "Servicios", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "2ugm9h6", "c": "Internet", "v": 90000, "cat": "Servicios", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "fpyc2k9", "c": "Netflix", "v": 31000, "cat": "Suscripciones", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "kusc3ip", "c": "Spotify", "v": 31000, "cat": "Suscripciones", "desde": "2000-01", "hasta": null, "med": "Crédito"}, {"id": "manfmrh", "c": "Nube Ari", "v": 10000, "cat": "Suscripciones", "desde": "2000-01", "hasta": "2026-10"}, {"id": "vloel3c", "c": "Mercado", "v": 500000, "cat": "Mercado", "desde": "2000-01", "hasta": "2026-09"}, {"id": "1g23j7c", "c": "Almuerzos Ari FDS", "v": 80000, "cat": "Personales", "desde": "2000-01", "hasta": "2026-10"}, {"id": "9x47e3k", "c": "Almuerzo Semanal Ari", "v": 80000, "cat": "Personales", "desde": "2000-01", "hasta": "2026-09"}, {"id": "hudt5bm", "c": "Plan celular mamá", "v": 50000, "cat": "Servicios", "desde": "2026-10", "hasta": null, "med": "Crédito"}, {"id": "r54dtcv", "c": "Arriendo", "v": 800000, "cat": "Vivienda", "desde": "2027-01", "hasta": null}], "cuotasF": [{"id": "hrftwoo", "e": "Nequi", "c": 108000, "s": 1561354}, {"id": "e0v223s", "e": "Lulo", "c": 150000, "s": 4179666}, {"id": "zfajlka", "e": "Tarjeta NU (pago)", "c": 670000, "s": 8089005}, {"id": "4qk2z6e", "e": "Crédito celular", "c": 60000, "s": 339124}], "cuotasE": [], "metas": [{"id": "0ectgiq", "n": "Fondo emergencia", "o": 3000000, "a0": 0, "fin": null}, {"id": "5buxiu1", "n": "Computador", "o": 3500000, "a0": 0, "fin": null}, {"id": "vnontof", "n": "Electrodomesticos", "o": 3000000, "fin": null, "a0": 0}], "buckets": {"2026-10": {"ingresos": [], "hormiga": [{"id": "x719fg1", "f": "2026-10-29", "c": "Hotel capital cheer", "k": "Varios", "m": "Efectivo o débito", "v": 360000}, {"id": "w447g1t", "f": "2026-10-24", "c": "Apoyo", "k": "Farmacia", "m": "Efectivo o débito", "v": 13800}, {"id": "h0urc50", "f": "2026-10-24", "c": "Gaseosa", "k": "Antojos", "m": "Efectivo o débito", "v": 1750}, {"id": "5aw6na0", "f": "2026-10-24", "c": "Detalle", "k": "Varios", "m": "Efectivo o débito", "v": 31000}, {"id": "0ak22ka", "f": "2026-10-25", "c": "Comida", "k": "Cafetería", "m": "Efectivo o débito", "v": 10200}, {"id": "mndirq7", "f": "2026-10-25", "c": "te y milhoja", "k": "Cafetería", "m": "Efectivo o débito", "v": 17000}, {"id": "yfydlux", "f": "2026-10-26", "c": "abono mas para pista cheer", "k": "Matrícula/Educación", "m": "Efectivo o débito", "v": 4000}, {"id": "9bcusky", "f": "2026-10-27", "c": "Comida", "k": "Antojos", "m": "Efectivo o débito", "v": 22500}], "ahorro": [{"id": "d73urtr", "f": "2026-10-26", "m": "Electrodomesticos", "v": 450000}], "pagos": {"zfajlka": 1067489, "hrftwoo": 108000, "e0v223s": 150000, "4qk2z6e": 60000}, "saldos": {"zfajlka": 8176700}, "pagox": {"zfajlka": 1991489}}, "2026-11": {"ingresos": [], "hormiga": [], "ahorro": [{"id": "skjy482", "f": "2026-11-01", "m": "Electrodomesticos", "v": 500000}, {"id": "0llgce2", "f": "2026-11-01", "m": "Fondo emergencia", "v": 500000}], "pagos": {"4qk2z6e": 279124, "zfajlka": 670000}, "saldos": {"zfajlka": 6185134}}, "2026-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {"zfajlka": 98000}}, "2027-01": {"ingresos": [{"id": "z2yqggh", "f": "2026-10-23", "c": "Prima", "v": 2800000}], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-04": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-05": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-06": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-07": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-08": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-10": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-11": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2027-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-01": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-04": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-05": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-06": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-07": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-08": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-10": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-11": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2028-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-01": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-04": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-05": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-06": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-07": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-08": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-10": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-11": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2029-12": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2030-01": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2030-02": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2030-03": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}, "2026-09": {"ingresos": [], "hormiga": [], "ahorro": [], "pagos": {}}}, "historial": [], "LISTAS": {"catFijas": ["Vivienda", "Servicios", "Mercado", "Suscripciones", "Transporte", "Salud", "Mascotas", "Personales", "Otros"], "catHormiga": ["Cafetería", "Restaurantes", "Mercadito", "Transporte/Taxi", "Domicilios", "Antojos", "Farmacia", "Matrícula/Educación", "Varios"], "medios": ["Efectivo o débito", "Crédito"], "ciclos": ["Mensual", "Trimestral", "Semestral", "Anual"]}, "ingFijos": [{"id": "9o50lvp", "c": "Salario", "v": 2900000}], "ingRec": [{"id": "ofoinfl", "c": "Plan celular madre", "v": 50000, "desde": "2026-10", "hasta": null}, {"id": "prima06", "c": "Prima (mitad y fin de año)", "v": 1000200, "desde": "2026-06", "hasta": null, "freq": "Semestral"}]};
-function DEFAULT(){ const o=mig(JSON.parse(JSON.stringify(RESPALDO_BASE))); o.mes=o.abierto; return o; }
-let S=load();
+function freshState(){
+  const d=new Date(); const ab=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+  return mig({abierto:ab,mes:ab,ingFijo:0,fijos:[],cuotasF:[],cuotasE:[],metas:[],ingRec:[],buckets:{},historial:[],LISTAS:JSON.parse(JSON.stringify(LISTAS))});
+}
+function DEFAULT(){ return freshState(); }
+let S=null;   /* se carga al iniciar sesion (startApp) */
 function load(){
   try{ const raw=store.get(KEY); if(raw){ const o=JSON.parse(raw); if(o&&o.abierto){ o.LISTAS=o.LISTAS||LISTAS; o.mes=o.abierto; return mig(o); } } }catch(e){}
   try{ const old=store.get("miplata.v1"); if(old){ const o=JSON.parse(old); if(o&&o.mes){ return mig(v1v2(o)); } } }catch(e){}
@@ -586,7 +633,7 @@ function renderIng(){
 const CATCOLORS=["#3a6ea5","#0e7c66","#1d9a6c","#c2497d","#e08a3c","#d64533","#8a6414","#7d5ba6","#6b7a89"];
 const CATCOLORS_D=["#8f96a3","#FFB000","#5f6673","#FFD34D","#c2c7d0","#FF6B6B","#e6e9ee","#CC8C00","#3B3F4A"];
 function aplicaFijo(r,m){ return (r.desde||"2000-01")<=m && (!r.hasta || m<=r.hasta); }
-function catColor(cat){ const i=S.LISTAS.catFijas.indexOf(cat); const arr=document.documentElement.getAttribute("data-theme")==="dark"?CATCOLORS_D:CATCOLORS; return arr[i>=0?i:arr.length-1]; }
+function catColor(cat){ const i=S.LISTAS.catFijas.indexOf(cat); const arr=isDarkTheme()?CATCOLORS_D:CATCOLORS; return arr[i>=0?i:arr.length-1]; }
 function renderFij(){
   const tb=$("tblFij").tBodies[0];
   const extra=Object.keys(S.fijos.reduce((a,x)=>{if(x.cat&&!S.LISTAS.catFijas.includes(x.cat))a[x.cat]=1;return a;},{}));
@@ -1114,11 +1161,11 @@ async function syncPull(silent){
     const j=await r.json();
     syncMode="cloud";
     if(j&&j.state){
-      const local=+store.get("miplata.updated")||0;
+      const local=+store.get(updKey())||0;
       if((j.updatedAt||0)>local&&!DIRTY.size){
         const vista=S.mes;   /* el mes que estabas mirando es de este dispositivo, no de la nube */
         S=mig(j.state); S.mes = vista>=S.abierto? vista : S.abierto;
-        store.set(KEY,JSON.stringify(S)); store.set("miplata.updated",String(j.updatedAt));
+        store.set(KEY,JSON.stringify(S)); store.set(updKey(),String(j.updatedAt));
         renderAll(true); if(!silent)flash("☁️ Datos actualizados desde la nube.");
       }
     } else { syncPushNow(); }
@@ -1129,24 +1176,100 @@ function syncPushNow(){
   if(typeof fetch==="undefined"){ syncMode="local"; paintSync(); return Promise.resolve(); }
   return fetch("api/data",{method:"PUT",cache:"no-store",headers:{"content-type":"application/json"},
     body:JSON.stringify({updatedAt:Date.now(),state:S})})
-    .then(r=>{ if(!r.ok)throw 0; syncMode="cloud"; store.set("miplata.updated",String(Date.now())); })
+    .then(r=>{ if(!r.ok)throw 0; syncMode="cloud"; store.set(updKey(),String(Date.now())); })
     .catch(()=>{ if(syncMode==="cloud")flash("⚠️ La nube no respondió: por ahora guardado solo en este dispositivo."); syncMode="local"; })
     .then(paintSync);
 }
 function syncPush(){ clearTimeout(pushT); pushT=setTimeout(syncPushNow,800); }
-function applyTheme(t){ document.documentElement.setAttribute("data-theme",t); $("btnTema").textContent = t==="dark"?"☀️":"🌙"; }
-applyTheme(store.get("miplata.tema")||"light");
-$("btnTema").onclick=()=>{ const t=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark"; store.set("miplata.tema",t); applyTheme(t); renderAll(true); };
+const THEMES=[
+  {id:"claro",nom:"Claro",sw:"#f4f6fa",sw2:"#0e7c66"},
+  {id:"dark",nom:"Oro negro",sw:"#0A0A0C",sw2:"#FFB000"},
+  {id:"noche",nom:"Noche turquesa",sw:"#101418",sw2:"#2fbf9f"},
+  {id:"esmeralda",nom:"Esmeralda",sw:"#06100c",sw2:"#3dd68c"},
+  {id:"vino",nom:"Vino y oro",sw:"#120a0d",sw2:"#e08ab8"},
+];
+const migTema=t=>t==="light"?"claro":(t||"claro");
+const themeKey=()=>UID? "miplata.tema."+UID : "miplata.tema.dev";
+const isDarkTheme=()=>["dark","noche","esmeralda","vino"].includes(document.documentElement.getAttribute("data-theme"));
+function applyTheme(t){ t=migTema(t); document.documentElement.setAttribute("data-theme",t); if($("themeOpts"))paintThemeMenu(); }
+function setTheme(t){ applyTheme(t); store.set(themeKey(),t); renderAll(true); flash("🎨 Tema aplicado y guardado en tu perfil."); }
+function paintThemeMenu(){ const cur=document.documentElement.getAttribute("data-theme");
+  $("themeOpts").innerHTML=THEMES.map(t=>`<button class="mini" style="display:flex;align-items:center;gap:8px;width:100%;margin:3px 0;${t.id===cur?"border:2px solid "+t.sw2:""}" onclick="setTheme('${t.id}')">
+    <span style="flex:0 0 16px;width:16px;height:16px;border-radius:50%;background:${t.sw};border:3px solid ${t.sw2}"></span><span style="flex:1;text-align:left">${t.nom}</span>${t.id===cur?"✅":""}</button>`).join(""); }
+applyTheme(store.get(themeKey())||store.get("miplata.tema")||"claro");
+$("btnTema").onclick=()=>{ const m=$("themeMenu"); m.style.display=m.style.display==="none"?"block":"none"; paintThemeMenu(); };
 $("btnSync").onclick=async()=>{ await syncPushNow(); await syncPull(true); flash(syncMode==="cloud"?"☁️ Sincronizado con la nube.":"⚠️ Sin nube activa: guarda solo en este dispositivo.");};
-syncPull(true);
-setInterval(()=>{ if(!DIRTY.size&&!document.hidden) syncPull(true); },45000);
-document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&!DIRTY.size) syncPull(true); });
-paintSync();
 $("btnImport").onclick=()=>$("fileImport").click();
 $("fileImport").onchange=e=>{if(e.target.files[0])importar(e.target.files[0]);e.target.value="";};
-(function(){const dl=document.createElement("datalist");dl.id="dlFij";
-  dl.innerHTML="";document.body.appendChild(dl);})();
-renderAll(true);
+function startApp(sess){
+  UID=sess.uid; KEY="miplata.v3."+UID;
+  if(!store.get(KEY) && !store.get("miplata.migrated")){   /* migracion unica por dispositivo: los perfiles nuevos nacen limpios */
+    for(const ok of ["miplata.v2","miplata.v1"]){ const raw=store.get(ok);
+      if(raw){ try{ const o=JSON.parse(raw); if(o&&o.abierto){ store.set(KEY,raw); store.set("miplata.migrated",KEY); break; } }catch(e){} } }
+    if(!store.get("miplata.migrated")) store.set("miplata.migrated",KEY);
+  }
+  S=load();
+  $("loginView").style.display="none";
+  $("profLine").textContent="perfil: "+sess.nombre+" · dispositivo recordado";
+  applyTheme(store.get(themeKey())||store.get("miplata.tema")||"claro");
+  const dl=document.createElement("datalist"); dl.id="dlFij"; dl.innerHTML=""; document.body.appendChild(dl);
+  renderAll(true);
+  syncPull(true);
+  setInterval(()=>{ if(!DIRTY.size&&!document.hidden) syncPull(true); },45000);
+  document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&!DIRTY.size) syncPull(true); });
+  paintSync();
+}
+async function hashStr(t){
+  try{ if(window.crypto&&crypto.subtle){ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));
+    return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); } }catch(e){}
+  let h=0x811c9dc5; for(let i=0;i<t.length;i++){ h^=t.charCodeAt(i); h=Math.imul(h,0x01000193)>>>0; } return "f"+h.toString(16);
+}
+async function fetchUsers(){ const r=await fetch("api/users",{cache:"no-store"}); if(!r.ok) throw 0; return await r.json(); }
+async function uidFrom(nm){ return (await hashStr("uid::"+nm.toLowerCase())).slice(0,12); }
+function showLogin(msg){ $("loginView").style.display="flex"; $("lgMsg").textContent=msg||""; }
+async function doLogin(){
+  const nom=$("lgNom").value.trim(), pass=$("lgPass").value;
+  if(!nom||!pass) return showLogin("Escribe nombre y contraseña.");
+  let reg; try{ reg=await fetchUsers(); }catch(e){ return showLogin("⚠️ No alcanzo la nube. Usa «Continuar sin perfil» o revisa tu conexión."); }
+  const u=(reg.users||[]).find(x=>x.nombre.toLowerCase()===nom.toLowerCase());
+  if(!u) return showLogin("Ese perfil no existe aún: créalo con «Crear perfil».");
+  const h=await hashStr(nom.toLowerCase()+"::"+pass);
+  if(u.hash!==h) return showLogin("Contraseña incorrecta para "+u.nombre+".");
+  const sess={uid:u.id,nombre:u.nombre,h}; store.set("miplata.session",JSON.stringify(sess)); startApp(sess);
+}
+async function doRegister(){
+  const nom=$("lgNom").value.trim(), pass=$("lgPass").value;
+  if(!nom||!pass) return showLogin("Elige nombre y contraseña: solo te la pedirá en dispositivos nuevos.");
+  const h=await hashStr(nom.toLowerCase()+"::"+pass), id=await uidFrom(nom);
+  try{ const r=await fetch("api/users",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({id,nombre:nom,hash:h})});
+    if(r.status===409) return showLogin("Ese nombre ya existe: entra con su contraseña.");
+    if(!r.ok) throw 0;
+  }catch(e){ return showLogin("⚠️ No alcanzo la nube para crear el perfil."); }
+  const sess={uid:id,nombre:nom,h}; store.set("miplata.session",JSON.stringify(sess)); startApp(sess);
+  flash("🎉 Perfil "+nom+" creado: este dispositivo queda recordado.");
+}
+function doLocal(){
+  const nom=$("lgNom").value.trim()||"Local";
+  const sess={uid:"local-"+Math.random().toString(36).slice(2,8),nombre:nom,h:"local"};
+  store.set("miplata.session",JSON.stringify(sess)); startApp(sess);
+  flash("⚠️ Perfil solo-en-este-dispositivo: no se sincroniza con la nube.");
+}
+function doLogout(){ store.set("miplata.session",""); location.reload(); }
+async function authBoot(){
+  const sess=JSON.parse(store.get("miplata.session")||"null");
+  if(sess&&sess.uid){
+    let reg=null; try{ reg=await fetchUsers(); }catch(e){}
+    if(reg){
+      const u=(reg.users||[]).find(x=>x.id===sess.uid);
+      if(u&&u.hash===sess.h){ startApp({uid:u.id,nombre:u.nombre,h:u.hash}); return; }
+      if(u){ store.set("miplata.session",""); showLogin("La contraseña cambió en otro dispositivo: entra de nuevo."); return; }
+      showLogin(); return;
+    }
+    startApp(sess); return;   /* sin internet: el dispositivo recordado entra igual */
+  }
+  showLogin();
+}
+authBoot();
 </script>
 </body>
 </html>
